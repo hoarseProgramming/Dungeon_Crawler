@@ -1,5 +1,5 @@
 ﻿//Dungeon Crawler.
-
+Console.CursorVisible = false;
 LevelData levelOne = new LevelData();
 levelOne.Load("Level1.txt");
 
