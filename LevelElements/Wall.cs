@@ -1,13 +1,10 @@
-﻿//Dungeon Crawler.
-
-
-//Game Loop
+﻿
 class Wall : LevelElement
 {
     public Wall(Position position)
     {
         Sprite = '#';
-        SpriteColor = ConsoleColor.White;
+        SpriteColor = ConsoleColor.DarkGray;
         Position = position;
     }
     public override void UpdateIsInsideVisionRange(Hero hero)
