@@ -17,20 +17,20 @@ class LevelData
                 char currentChar = (char)reader.Read();
                 if (currentChar == '#')
                 {
-                    _elements.Add(new Wall(readerPosition));
+                    _elements.Add(new Wall(new Position(readerPosition.X, readerPosition.Y + 4)));
                 }
                 if (currentChar == '@')
                 {
-                    _elements.Add(new Hero(readerPosition));
+                    _elements.Add(new Hero(new Position(readerPosition.X, readerPosition.Y + 4)));
                     Hero = (Hero)Elements[Elements.Count - 1];
                 }
                 else if (currentChar == 'r')
                 {
-                    _elements.Add(new Rat(readerPosition));
+                    _elements.Add(new Rat(new Position(readerPosition.X, readerPosition.Y + 4)));
                 }
                 else if (currentChar == 's')
                 {
-                    _elements.Add(new Snake(readerPosition));
+                    _elements.Add(new Snake(new Position(readerPosition.X, readerPosition.Y + 4)));
                 }
                 else if (currentChar == '\n')
                 {
