@@ -5,7 +5,7 @@ class Snake : Enemy
     {
         double distanceFromHero = Position.CalculateDistanceBetweenPositions(Position, hero.Position);
 
-        if (distanceFromHero <= 2)
+        if (distanceFromHero > 1 && distanceFromHero <= 2)
         {
             Position potentialPosition = GetPotentialPosition(currentLevel, hero, distanceFromHero);
             bool foundBetterPosition = !(potentialPosition.X == Position.X && potentialPosition.Y == Position.Y);

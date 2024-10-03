@@ -9,7 +9,9 @@ class Rat : Enemy
 
         if (elementCollidedWith is Hero)
         {
-            Console.WriteLine("Attack!");
+            Console.SetCursorPosition(0, 1);
+            Attack((Character)elementCollidedWith);
+            ((Character)elementCollidedWith).Attack(this);
         }
         else if (elementCollidedWith is Enemy || elementCollidedWith is Wall) { }
         else

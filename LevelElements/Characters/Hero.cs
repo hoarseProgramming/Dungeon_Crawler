@@ -10,7 +10,9 @@ class Hero : Character
 
         if (elementCollidedWith is Enemy)
         {
-            Console.WriteLine("Attack!");
+            Console.SetCursorPosition(0, 1);
+            Attack((Character)elementCollidedWith);
+            ((Character)elementCollidedWith).Attack(this);
         }
         else if (elementCollidedWith is Wall) {}
         else
