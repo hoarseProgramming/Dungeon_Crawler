@@ -1,6 +1,8 @@
 ﻿
 class Hero : Character
 {
+    public bool IsAlive { get; set; }
+    public int Turn { get; set; }
     public int VisionRange { get; set; }
     public void Move(List<LevelElement> currentLevel)
     {
@@ -8,11 +10,20 @@ class Hero : Character
         
         LevelElement elementCollidedWith = CheckCollision(currentLevel, potentialPosition);
 
-        if (elementCollidedWith is Enemy)
+        if (elementCollidedWith is Enemy enemy)
         {
             Console.SetCursorPosition(0, 1);
-            Attack((Character)elementCollidedWith);
-            ((Character)elementCollidedWith).Attack(this);
+            Attack(enemy);
+            enemy.Attack(this);
+
+            if (enemy.HP <= 0)
+            {
+                currentLevel.Remove(enemy);
+            }
+            else if (HP <= 0)
+            {
+                IsAlive = false;
+            }
         }
         else if (elementCollidedWith is Wall) {}
         else
@@ -21,6 +32,8 @@ class Hero : Character
             Console.Write(' ');
             Position = potentialPosition;
         }
+
+        Turn++;
     }
     public Position GetPotentialPosition()
     {
@@ -54,6 +67,9 @@ class Hero : Character
         HP = 100;
         AttackDice = new Dice(2, 6, 2);
         DefenceDice = new Dice(2, 6, 0);
+        IsAlive = true;
+        Turn = 0;
         VisionRange = 5;
+        
     }
 }
