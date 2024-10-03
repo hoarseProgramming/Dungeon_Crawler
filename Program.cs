@@ -6,9 +6,10 @@ levelOne.Load("Level1.txt");
 //Game Loop
 while (true)
 {
+    Console.SetCursorPosition(0, 0);
+    Console.WriteLine($"HP: {levelOne.Hero.HP}");
     levelOne.UpdateVision();
     levelOne.DrawLevel();
-    //if not Wall?
     levelOne.MoveCharacters();
-    //evelOne.Hero.Move(levelOne.Elements);  
+    
 }
