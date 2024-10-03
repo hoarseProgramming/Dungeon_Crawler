@@ -16,8 +16,17 @@ abstract class LevelElement
 
         if (isInsideVisionRange)
         {
-            Console.ForegroundColor = SpriteColor;
-            Console.Write(Sprite);
+            if (this is Wall)
+            {
+                Console.BackgroundColor = SpriteColor;
+                Console.Write(' ');
+                Console.BackgroundColor = ConsoleColor.Black;
+            }
+            else
+            {
+                Console.ForegroundColor = SpriteColor;
+                Console.Write(Sprite);
+            }  
         }
         else
         {
