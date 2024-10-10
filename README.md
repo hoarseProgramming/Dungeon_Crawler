@@ -1,13 +1,26 @@
 # Labb_2_Hampus_Eiderstrom_Swahn
 
-## Main.cs = main method
+## For ease of assessment
 
-## Game loop is inside UserInterface class' RunGameLoop() method.
+Main.cs = main method
 
-## The game requires full screen to run in animation mode due to buffer height issues. Main menu gives you the choice of running either versions of the game.
+Game loop is inside UserInterface class' RunGameLoop() method.
 
-## The unanimated methods of the game are a bit cleaner than the animated methods, they smell. The animated ones should be easy to spot by their Animated-suffix (since they aren't really a needed part of this exam you could skip those if you want to spare some time :-) .
+The unanimated methods of the game are a bit cleaner than the animated methods, they smell. 
 
-## Reviewing the code now before pushing it I notice alot of things that I would do differently, I should have went by instructions and made an update method for each individual character's turn instead of updating everyone at the same time when everyone's made their turn, but I'm out of time so it has to be good enough.
+The animated ones should be easy to spot by their Animated-suffix (since they aren't really a needed part of this exam you could skip those if you want to spare some time :-) .
 
-## Enjoy, was a great assignment.
+## Running the game
+The game requires full screen to run in animation mode due to buffer height issues. 
+
+Main menu gives you the choice of running either versions of the game.
+
+
+## My thoughts
+Reviewing the code now before pushing it I notice alot of important things that I would like to do differently.
+
+But instead of working on important stuff, like how the characters update, i spent too much time animating dices.
+
+And not I'm out of time so it has to be good enough.
+
+Enjoy, this was a great assignment and I learnt a lot doing it!
