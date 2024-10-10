@@ -4,7 +4,7 @@ class Wall : LevelElement
     public Wall(Position position)
     {
         Sprite = '#';
-        SpriteColor = ConsoleColor.DarkGray;
+        SpriteColor = ConsoleColor.White;
         Position = position;
     }
     public override void UpdateIsInsideVisionRange(Hero hero)

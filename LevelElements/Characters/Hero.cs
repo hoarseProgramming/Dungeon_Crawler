@@ -1,75 +1,67 @@
 ﻿
 class Hero : Character
 {
-    public bool IsAlive { get; set; }
+    
     public int Turn { get; set; }
     public int VisionRange { get; set; }
-    public void Move(List<LevelElement> currentLevel)
+    public void MakeTurn(LevelData currentLevel)
     {
         Position potentialPosition = GetPotentialPosition();
         
-        LevelElement elementCollidedWith = CheckCollision(currentLevel, potentialPosition);
+        LevelElement elementCollidedWith = CheckCollision(currentLevel.Elements, potentialPosition);
 
-        if (elementCollidedWith is Enemy enemy)
+        if (elementCollidedWith is Enemy opponent)
         {
-            Console.SetCursorPosition(0, 1);
-            Attack(enemy);
-            enemy.Attack(this);
-
-            if (enemy.HP <= 0)
+            if (ShouldAnimateDiceThrows)
             {
-                currentLevel.Remove(enemy);
+                EnterAnimatedCombatPhaseWith(opponent);
             }
-            else if (HP <= 0)
+            else
             {
-                IsAlive = false;
+                EnterCombatPhaseWith(opponent);
             }
         }
-        else if (elementCollidedWith is Wall) {}
-        else
+        else if (!(elementCollidedWith is Wall)) 
         {
-            Console.SetCursorPosition(Position.X, Position.Y);
-            Console.Write(' ');
-            Position = potentialPosition;
+            Move(potentialPosition);
+            ClearAttackText();
+            if (ShouldAnimateDiceThrows)
+            {
+                AttackDice.ClearDiceText();
+            }       
         }
-
+  
         Turn++;
     }
     public Position GetPotentialPosition()
     {
-        ConsoleKeyInfo input = Console.ReadKey();
+        ConsoleKeyInfo input = Console.ReadKey(true);
 
-        if (input.Key == ConsoleKey.UpArrow)
+        return input.Key switch
         {
-            return Position.GetPosition(Direction.UP);
-        }
-        else if (input.Key == ConsoleKey.DownArrow)
-        {
-            return Position.GetPosition(Direction.DOWN);
-        }
-        else if (input.Key == ConsoleKey.LeftArrow)
-        {
-            return Position.GetPosition(Direction.LEFT);
-        }
-        else if (input.Key == ConsoleKey.RightArrow)
-        {
-            return Position.GetPosition(Direction.RIGHT);
-        }
-        return Position;
+            ConsoleKey.UpArrow => Position.GetPositionOneStepIn(Direction.UP),
+            ConsoleKey.DownArrow => Position.GetPositionOneStepIn(Direction.DOWN),
+            ConsoleKey.LeftArrow => Position.GetPositionOneStepIn(Direction.LEFT),
+            ConsoleKey.RightArrow => Position.GetPositionOneStepIn(Direction.RIGHT),
+            _ => Position
+        };
     }
-
-    public Hero(Position position, string name = "Hampus")
+    public Hero(Position position, bool shouldAnimateDiceThrows, string name)
     {
         Sprite = '@';
         SpriteColor = ConsoleColor.Yellow;
         Position = position;
+        IsAlive = true;
         Name = name;
-        HP = 100;
+        HP = 40;
         AttackDice = new Dice(2, 6, 2);
         DefenceDice = new Dice(2, 6, 0);
-        IsAlive = true;
+        WasAttackedThisTurn = false;
         Turn = 0;
         VisionRange = 5;
-        
+        if (shouldAnimateDiceThrows)
+        {
+            ShouldAnimateDiceThrows = true;
+        }
     }
 }

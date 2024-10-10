@@ -10,27 +10,28 @@ abstract class LevelElement
     public Position Position { get; set; }
     public Char Sprite { get; set; }
     public ConsoleColor SpriteColor { get; set;  }
-    public void Draw(bool isInsideVisionRange)
+    public void Draw()
     {
         Console.SetCursorPosition(Position.X, Position.Y);
 
-        if (isInsideVisionRange)
+        if (IsInsideVisionRange)
         {
             if (this is Wall)
             {
-                Console.BackgroundColor = SpriteColor;
-                Console.Write(' ');
+                Console.BackgroundColor = ConsoleColor.DarkGray;
+                Console.ForegroundColor = SpriteColor;
+                Console.Write(Sprite);
                 Console.BackgroundColor = ConsoleColor.Black;
             }
             else
             {
                 Console.ForegroundColor = SpriteColor;
-                Console.Write(Sprite);
-            }  
+                Console.Write(Sprite);   
+            }
         }
         else
         {
-            Console.Write(' ');
+             Console.Write(' ');  
         }
     }
     public virtual void UpdateIsInsideVisionRange(Hero hero)

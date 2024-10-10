@@ -1,101 +1,88 @@
 ﻿
 class Snake : Enemy
 {
-    public void Move(List<LevelElement> currentLevel, Hero hero)
+    public void MakeTurn(LevelData currentLevel)
     {
-        double distanceFromHero = Position.CalculateDistanceBetweenPositions(Position, hero.Position);
+        double distanceFromHero = Position.CalculateDistanceBetweenPositions(Position, currentLevel.Hero.Position);
+        bool heroIsInFleeingRange = CheckIfHeroIsInFleeingRange(distanceFromHero);
 
-        if (distanceFromHero > 1 && distanceFromHero <= 2)
+        if (heroIsInFleeingRange)
         {
-            Position potentialPosition = GetPotentialPosition(currentLevel, hero, distanceFromHero);
-            bool foundBetterPosition = !(potentialPosition.X == Position.X && potentialPosition.Y == Position.Y);
-            if (foundBetterPosition)
+            Position nextPosition = GetNextPosition(currentLevel, distanceFromHero);
+            Move(nextPosition);    
+        }
+        else if (distanceFromHero == 1)
+        {
+            if (ShouldAnimateDiceThrows)
             {
-                Console.SetCursorPosition(Position.X, Position.Y);
-                Console.Write(' ');
-                Position = potentialPosition;
+                EnterAnimatedCombatPhaseWith(currentLevel.Hero);
+            }
+            else
+            {
+                EnterCombatPhaseWith(currentLevel.Hero);
             }
         }
-
     }
-    public Position GetPotentialPosition(List<LevelElement> currentLevel, Hero hero, double distanceFromHero)
+    public bool CheckIfHeroIsInFleeingRange( double distanceFromHero)
     {
-        Position potentialPosition;
-        double potentialPositionDistanceFromHero;
-
-        Position bestPosition = Position;
+        if (distanceFromHero > 1 && distanceFromHero <= 2)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public Position GetNextPosition(LevelData currentLevel, double distanceFromHero)
+    {
+        Position bestPosition = CheckIfThereIsBetterPosition(currentLevel, distanceFromHero);
+        
+        return bestPosition;
+    }
+    public Position CheckIfThereIsBetterPosition(LevelData currentLevel, double distanceFromHero)
+    {
         double largestDistanceFromHero = distanceFromHero;
+        Position bestPosition = Position;
 
         for (int i = 0; i < 4; i++)
         {
             Direction direction = (Direction)i;
 
-            if (direction == Direction.UP)
+            Position potentialPosition = Position.GetPositionOneStepIn(direction);
+
+            LevelElement elementCollidedWith = CheckCollision(currentLevel.Elements, potentialPosition);
+
+            if (elementCollidedWith == null)
             {
-                potentialPosition = Position.GetPosition(direction);
-                potentialPositionDistanceFromHero = Position.CalculateDistanceBetweenPositions(potentialPosition, hero.Position);
+                double potentialPositionDistanceFromHero = Position.CalculateDistanceBetweenPositions(potentialPosition, currentLevel.Hero.Position);
+
                 bool potentialPositionIsFurtherFromHero = potentialPositionDistanceFromHero > largestDistanceFromHero;
 
-                if (CheckCollision(currentLevel, potentialPosition) == null && potentialPositionIsFurtherFromHero)
+                if (potentialPositionIsFurtherFromHero)
                 {
                     largestDistanceFromHero = potentialPositionDistanceFromHero;
                     bestPosition = potentialPosition;
                 }
             }
-            else if (direction == Direction.DOWN)
-            {
-                potentialPosition = Position.GetPosition(direction);
-                potentialPositionDistanceFromHero = Position.CalculateDistanceBetweenPositions(potentialPosition, hero.Position);
-                bool potentialPositionIsFurtherFromHero = potentialPositionDistanceFromHero > distanceFromHero;
-
-                if (CheckCollision(currentLevel, potentialPosition) == null && potentialPositionIsFurtherFromHero)
-                {
-                    largestDistanceFromHero = potentialPositionDistanceFromHero;
-                    bestPosition = potentialPosition;
-                }
-            }
-            else if (direction == Direction.LEFT)
-            {
-                potentialPosition = Position.GetPosition(direction);
-                potentialPositionDistanceFromHero = Position.CalculateDistanceBetweenPositions(potentialPosition, hero.Position);
-                bool potentialPositionIsFurtherFromHero = potentialPositionDistanceFromHero > distanceFromHero;
-
-                if (CheckCollision(currentLevel, potentialPosition) == null && potentialPositionIsFurtherFromHero)
-                {
-                    largestDistanceFromHero = potentialPositionDistanceFromHero;
-                    bestPosition = potentialPosition;
-                }
-            }
-            else
-            {
-                potentialPosition = Position.GetPosition(direction);
-                potentialPositionDistanceFromHero = Position.CalculateDistanceBetweenPositions(potentialPosition, hero.Position);
-                bool potentialPositionIsFurtherFromHero = potentialPositionDistanceFromHero > distanceFromHero;
-
-                if (CheckCollision(currentLevel, potentialPosition) == null && potentialPositionIsFurtherFromHero)
-                {
-                    largestDistanceFromHero = potentialPositionDistanceFromHero;
-                    bestPosition = potentialPosition;
-                }
-            }
-
         }
+
         return bestPosition;
-
-
     }
-    public override void Update()
-    {
-        throw new NotImplementedException();
-    }
-    public Snake(Position position)
+    public Snake(Position position, bool shouldAnimateDiceThrows)
     {
         Sprite = 'S';
         SpriteColor = ConsoleColor.Green;
         Position = position;
+        IsAlive = true;
         Name = "snake";
-        HP = 25;
+        HP = 10;
         AttackDice = new Dice(3, 4, 2);
-        DefenceDice = new Dice(1, 8, 5);
+        DefenceDice = new Dice(1, 8, 2);
+        WasAttackedThisTurn = false;
+        if (shouldAnimateDiceThrows)
+        {
+            ShouldAnimateDiceThrows = true;
+        }
     }
 }
