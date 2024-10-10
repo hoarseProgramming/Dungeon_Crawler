@@ -16,7 +16,7 @@ struct Position
         double yDifference = posOne.Y - posTwo.Y;
         return Math.Sqrt(Math.Pow(xDifference, 2) + Math.Pow(yDifference, 2));
     }
-    public Position GetPosition(Direction direction)
+    public Position GetPositionOneStepIn(Direction direction)
     {
         if (direction == Direction.UP)
         {
