@@ -3,7 +3,7 @@ public static class UserInterface
 {
     public static void RunMainMenu()
     {
-        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+        Console.ForegroundColor = ConsoleColor.Red;
         Console.CursorVisible = false;
         List<Object> settings = new();
         ConsoleKeyInfo input = new();
@@ -73,11 +73,11 @@ public static class UserInterface
         Console.WriteLine("Enter hero name. Simply press enter for default name (highly recommended)");
         string heroName = Console.ReadLine();
 
-        Console.WriteLine("Choose if you want to animate dice throws! YES/NO (YES is Highly recommended)");  
+        Console.WriteLine("Do you want to animate dice throws! YES/NO (YES is Highly recommended)");  
         string input = String.Empty;
         while (input.ToLower() != "yes" && input.ToLower() != "no")
         {
-            Console.SetCursorPosition(0, 4);
+            Console.SetCursorPosition(0, 3);
             input = Console.ReadLine();
             
         }

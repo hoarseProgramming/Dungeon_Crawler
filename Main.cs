@@ -1,3 +1,3 @@
-﻿//Labb 2 - Hampus Eiderström Swahn
+﻿//Dungeon Crawler
 
 UserInterface.RunMainMenu();
