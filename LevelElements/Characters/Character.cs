@@ -64,7 +64,7 @@ abstract class Character : LevelElement
         string heroIsAttacking = $"You (ATK: {AttackDice} => {attack}) attacked the {opponent.Name} " +
                     $"(Def: {opponent.DefenceDice} => {defence}) for {damage} damage";
         string enemyIsAttacking = $"The {Name} (ATK: {AttackDice} => {attack}) attacked you " +
-                    $"(Def: {DefenceDice} => {defence}) for {damage} damage";
+                    $"(Def: {opponent.DefenceDice} => {defence}) for {damage} damage";
 
         ClearAttackText();
 
@@ -73,19 +73,19 @@ abstract class Character : LevelElement
             Console.ForegroundColor = ConsoleColor.Yellow;
             if (!opponent.IsAlive)
             {
-                Console.WriteLine($"{heroIsAttacking}. \"May you writhe in agony in thy grave.\".".PadRight(Console.BufferWidth));
+                Console.WriteLine($"{heroIsAttacking}. \"May you writhe in agony in thy grave.\"".PadRight(Console.BufferWidth));
             }
             else if (damage == 0)
             {
-                Console.WriteLine($"{heroIsAttacking}. \"Hmm, something's wrong with this sword\".".PadRight(Console.BufferWidth));
+                Console.WriteLine($"{heroIsAttacking}. \"Hmm, something's wrong with this sword.\"".PadRight(Console.BufferWidth));
             }
             else if (damage < 5)
             {
-                Console.WriteLine($"{heroIsAttacking}. \"Got you good feeble monster!\".".PadRight(Console.BufferWidth));
+                Console.WriteLine($"{heroIsAttacking}. \"Got you good feeble monster!\"".PadRight(Console.BufferWidth));
             }
             else
             {
-                Console.WriteLine($"{heroIsAttacking}. \"Mmm, I love the smell of blood in the morning\".".PadRight(Console.BufferWidth));
+                Console.WriteLine($"{heroIsAttacking}. \"Mmm, I love the smell of blood in the morning.\"".PadRight(Console.BufferWidth));
             }
         }
         else
