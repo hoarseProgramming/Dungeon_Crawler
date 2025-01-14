@@ -55,7 +55,7 @@ public static class UserInterface
         Console.ForegroundColor = ConsoleColor.Gray;
     }
     public static void RunGameLoop(List<Object> settings)
-    {             
+    {
         LevelData levelOne = new LevelData();
         levelOne.Load("Level1.txt", settings);
 
@@ -73,19 +73,19 @@ public static class UserInterface
         Console.WriteLine("Enter hero name. Simply press enter for default name (highly recommended)");
         string heroName = Console.ReadLine();
 
-        Console.WriteLine("Do you want to animate dice throws! YES/NO (YES is Highly recommended)");  
+        Console.WriteLine("Do you want to animate dice throws! YES/NO (YES is Highly recommended)");
         string input = String.Empty;
         while (input.ToLower() != "yes" && input.ToLower() != "no")
         {
             Console.SetCursorPosition(0, 3);
             input = Console.ReadLine();
-            
+
         }
 
         bool shouldAnimate = false;
         if (input == "yes")
         {
-            shouldAnimate = true;           
+            shouldAnimate = true;
         }
         settings.Add(shouldAnimate);
 
@@ -105,7 +105,7 @@ public static class UserInterface
         List<Object> defaultSettings = new();
         defaultSettings.Add(false);
         defaultSettings.Add("Fredrik \"SOLID\" the DRY");
-        
+
         return defaultSettings;
     }
 }
