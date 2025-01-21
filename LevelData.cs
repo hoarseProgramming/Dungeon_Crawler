@@ -134,7 +134,10 @@ class LevelData
     public void NewTurn()
     {
         Hero.MakeTurn(this);
-
+        if (Hero.HasExitedGame)
+        {
+            return;
+        }
         UpdateVision();
 
         foreach (var element in Elements)
