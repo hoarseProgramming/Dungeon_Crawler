@@ -32,7 +32,7 @@ namespace Dungeon_Crawler
 
             client.Dispose();
         }
-        public static List<Game>? LoadGamesFromDataBase()
+        public static Game[]? LoadGamesFromDataBase()
         {
             var connectionString = "mongodb://localhost:27017/";
 
@@ -46,13 +46,25 @@ namespace Dungeon_Crawler
 
             client.Dispose();
 
+            var saveFile = new Game[3];
+
             if (savedGames.Count == 0)
             {
-                return null;
+                return saveFile;
             }
             else
             {
-                return savedGames;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (savedGames.Count > i)
+                    {
+                        if (savedGames[i] is not null)
+                        {
+                            saveFile[i] = savedGames[i];
+                        }
+                    }
+                }
+                return saveFile;
             }
         }
     }

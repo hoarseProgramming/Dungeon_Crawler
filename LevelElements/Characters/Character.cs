@@ -164,11 +164,11 @@ abstract class Character : LevelElement
             }
             else if (this is Rat)
             {
-                OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, $"The {Name} skittering about.", MessageType.Movement)));
+                OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, $"The {Name} is skittering about.", MessageType.Movement)));
             }
             else
             {
-                OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, $"You take another step in the dark dungeon", MessageType.Movement)));
+                OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, $"You move", MessageType.Movement)));
             }
         }
     }

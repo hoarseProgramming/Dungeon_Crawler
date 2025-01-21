@@ -2,14 +2,22 @@
 
 internal class AppData
 {
-    public AppData(List<Game> savedGames)
+    public AppData(Game[] savedGames)
     {
-        this.SavedGames = savedGames;
+        SavedGames = savedGames;
+
+        foreach (var game in savedGames)
+        {
+            if (game is not null)
+            {
+                game.DeMongoGame(this);
+            }
+        }
     }
 
-    private Game ChosenGame;
+    private Game? SelectedGame;
 
-    public List<Game> SavedGames;
+    public Game[] SavedGames;
 
     private Settings settings = new();
     public void RunMainMenu()
@@ -42,7 +50,7 @@ internal class AppData
             }
             else if (input.Key == ConsoleKey.L)
             {
-                ChooseSavedGame();
+                SelectSaveFileForLoading();
             }
             else if (input.Key == ConsoleKey.Spacebar)
             {
@@ -99,11 +107,11 @@ internal class AppData
     }
     public void StartNewGame(Settings settings)
     {
-        ChosenGame = new();
-        ChosenGame.CreateNewGame(settings);
-        ChosenGame.RunGameLoop();
+        SelectedGame = new();
+        SelectedGame.CreateNewGame(settings, this);
+        SelectedGame.RunGameLoop();
     }
-    public void ChooseSavedGame()
+    public void SelectSaveFileForLoading()
     {
         Console.Clear();
 
@@ -113,7 +121,7 @@ internal class AppData
 
         Console.SetCursorPosition(4, 2);
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write("Choose saved Game: 1, 2 or 3. ");
+        Console.Write("Select save file: 1, 2 or 3. ");
         Console.ForegroundColor = ConsoleColor.White;
 
         while (
@@ -123,12 +131,44 @@ internal class AppData
             input.Key != ConsoleKey.Backspace
             )
         {
-            Console.SetCursorPosition(2, 6);
-            Console.Write("1:".PadRight(5) + $"Name: {SavedGames[0].Hero.Name}");
-            Console.SetCursorPosition(2, 7);
-            Console.Write($"Turn: {SavedGames[0].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[0].Hero.HP}");
+            if (SavedGames[0] is not null)
+            {
+                Console.SetCursorPosition(2, 6);
+                Console.Write("1:".PadRight(5) + $"Name: {SavedGames[0].Hero.Name}");
+                Console.SetCursorPosition(2, 7);
+                Console.Write($"Turn: {SavedGames[0].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[0].Hero.HP}");
+            }
+            else
+            {
+                Console.SetCursorPosition(2, 6);
+                Console.Write("1:".PadRight(5) + "Empty");
+            }
 
+            if (SavedGames[1] is not null)
+            {
+                Console.SetCursorPosition(2, 9);
+                Console.Write("2:".PadRight(5) + $"Name: {SavedGames[1].Hero.Name}");
+                Console.SetCursorPosition(2, 10);
+                Console.Write($"Turn: {SavedGames[1].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[1].Hero.HP}");
+            }
+            else
+            {
+                Console.SetCursorPosition(2, 9);
+                Console.Write("2:".PadRight(5) + "Empty");
+            }
 
+            if (SavedGames[2] is not null)
+            {
+                Console.SetCursorPosition(2, 12);
+                Console.Write("3:".PadRight(5) + $"Name: {SavedGames[2].Hero.Name}");
+                Console.SetCursorPosition(2, 13);
+                Console.Write($"Turn: {SavedGames[2].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[2].Hero.HP}");
+            }
+            else
+            {
+                Console.SetCursorPosition(2, 12);
+                Console.Write("3:".PadRight(5) + "Empty");
+            }
 
             input = Console.ReadKey(true);
         }
@@ -137,21 +177,140 @@ internal class AppData
         {
             if (input.Key == ConsoleKey.D1)
             {
-                ChosenGame = SavedGames[0];
+                SelectedGame = SavedGames[0];
             }
 
-            if (ChosenGame.Settings.ShouldAnimateDiceThrows)
+            if (SelectedGame is null)
             {
-                Console.WriteLine("You have chosen to animate dice throws.");
-                Console.WriteLine("Please maximise your console window now. Press any key when ready.");
-                Console.ReadKey();
+
+            }
+            else
+            {
+                if (SelectedGame.Settings.ShouldAnimateDiceThrows)
+                {
+                    Console.WriteLine("You have chosen to animate dice throws.");
+                    Console.WriteLine("Please maximise your console window now. Press any key when ready.");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+
                 Console.Clear();
+                SelectedGame.CurrentLevel.DrawLevel();
+                SelectedGame.RunGameLoop();
             }
 
             Console.Clear();
-            ChosenGame.CurrentLevel.DrawLevel();
-            ChosenGame.RunGameLoop();
         }
+    }
+    public int SelectSaveFileForSaving()
+    {
+        Console.Clear();
+
+        WriteMenuBorders();
+
+        ConsoleKeyInfo input = new();
+
+        Console.SetCursorPosition(4, 2);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("Select save file: 1, 2 or 3. ");
+        Console.SetCursorPosition(4, 3);
+        Console.Write("Return to game - Backspace");
+        Console.ForegroundColor = ConsoleColor.White;
+
+        while (input.Key != ConsoleKey.D1 &&
+            input.Key != ConsoleKey.D2 &&
+            input.Key != ConsoleKey.D3 &&
+            input.Key != ConsoleKey.Backspace)
+        {
+            if (SavedGames[0] is not null)
+            {
+                Console.SetCursorPosition(2, 6);
+                Console.Write("1:".PadRight(5) + $"Name: {SavedGames[0].Hero.Name}");
+                Console.SetCursorPosition(2, 7);
+                Console.Write($"Turn: {SavedGames[0].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[0].Hero.HP}");
+            }
+            else
+            {
+                Console.SetCursorPosition(2, 6);
+                Console.Write("1:".PadRight(5) + "Empty");
+            }
+
+            if (SavedGames[1] is not null)
+            {
+                Console.SetCursorPosition(2, 9);
+                Console.Write("2:".PadRight(5) + $"Name: {SavedGames[1].Hero.Name}");
+                Console.SetCursorPosition(2, 10);
+                Console.Write($"Turn: {SavedGames[1].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[1].Hero.HP}");
+            }
+            else
+            {
+                Console.SetCursorPosition(2, 9);
+                Console.Write("2:".PadRight(5) + "Empty");
+            }
+
+            if (SavedGames[2] is not null)
+            {
+                Console.SetCursorPosition(2, 12);
+                Console.Write("3:".PadRight(5) + $"Name: {SavedGames[2].Hero.Name}");
+                Console.SetCursorPosition(2, 13);
+                Console.Write($"Turn: {SavedGames[2].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[2].Hero.HP}");
+            }
+            else
+            {
+                Console.SetCursorPosition(2, 12);
+                Console.Write("3:".PadRight(5) + "Empty");
+            }
+
+            input = Console.ReadKey(true);
+
+            if (input.Key == ConsoleKey.D1 ||
+                input.Key == ConsoleKey.D2 ||
+                input.Key == ConsoleKey.D3)
+            {
+                int selectedSaveFile = 0;
+
+                if (input.Key == ConsoleKey.D1)
+                {
+                    selectedSaveFile = 1;
+                }
+                else if (input.Key == ConsoleKey.D2)
+                {
+                    selectedSaveFile = 2;
+                }
+                else if (input.Key == ConsoleKey.D3)
+                {
+                    selectedSaveFile = 3;
+                }
+
+                if (SavedGames[selectedSaveFile - 1] is not null)
+                {
+                    Console.Clear();
+
+                    WriteMenuBorders();
+
+                    Console.SetCursorPosition(4, 2);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("Overwrite save? YES/NO");
+
+                    Console.SetCursorPosition(18, 9);
+                    string choice = Console.ReadLine();
+
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    if (choice.ToLower() == "yes")
+                    {
+                        return selectedSaveFile;
+                    }
+                }
+                else
+                {
+                    return selectedSaveFile;
+                }
+            }
+
+            Console.Clear();
+        }
+        return 0;
     }
     public static Settings GetSettings()
     {

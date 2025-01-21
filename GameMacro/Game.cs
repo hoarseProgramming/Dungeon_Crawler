@@ -1,11 +1,11 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
 namespace Dungeon_Crawler.GameMacro
 {
     internal class Game
     {
-        public ObjectId Id { get; set; }
+        [BsonId]
+        public int Id { get; set; } = 0;
         [BsonIgnore]
         public bool IsRunning = false;
         public Hero Hero { get; set; }
@@ -17,7 +17,9 @@ namespace Dungeon_Crawler.GameMacro
         public Settings Settings { get; set; }
         public Log GameLog { get; set; } = new();
 
-        public void CreateNewGame(Settings settings)
+        private AppData AppData;
+
+        public void CreateNewGame(Settings settings, AppData appData)
         {
             Levels.Clear();
             //TODO: Load all levels ;-)
@@ -31,6 +33,8 @@ namespace Dungeon_Crawler.GameMacro
 
             Levels.Add(levelOne);
             CurrentLevel = levelOne;
+
+            AppData = appData;
         }
         public void RunGameLoop()
         {
@@ -46,7 +50,7 @@ namespace Dungeon_Crawler.GameMacro
             }
         }
 
-        public void DeMongoGame()
+        public void DeMongoGame(AppData appData)
         {
             foreach (var level in Levels)
             {
@@ -59,6 +63,8 @@ namespace Dungeon_Crawler.GameMacro
             Hero = CurrentLevel.Hero;
 
             Hero.SetGame(this);
+
+            AppData = appData;
 
         }
         public void levelElement_LogMessageSent(object sender, LogMessageSentEventArgs e)
@@ -85,7 +91,22 @@ namespace Dungeon_Crawler.GameMacro
         }
         internal void SaveGame()
         {
-            DataBaseHandler.SaveGameToDataBase(this);
+            if (AppData.SavedGames.Any(g => g?.Id == Id))
+            {
+                DataBaseHandler.SaveGameToDataBase(this);
+            }
+            else
+            {
+                Id = AppData.SelectSaveFileForSaving();
+
+                if (Id != 0)
+                {
+                    DataBaseHandler.SaveGameToDataBase(this);
+                    AppData.SavedGames[Id - 1] = this;
+                }
+            }
+
+            CurrentLevel.DrawLevel();
         }
 
         internal void RunInGameMenu()
