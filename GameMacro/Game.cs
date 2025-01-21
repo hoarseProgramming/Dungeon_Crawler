@@ -51,8 +51,12 @@ namespace Dungeon_Crawler.GameMacro
                 if (!Hero.IsAlive)
                 {
                     IsRunning = false;
-                    AppData.SavedGames[Id - 1] = null;
-                    DataBaseHandler.DeleteGameFromDatabase(this);
+
+                    if (Id != 0)
+                    {
+                        AppData.SavedGames[Id - 1] = null;
+                        DataBaseHandler.DeleteGameFromDatabase(this);
+                    }
                 }
             }
         }
