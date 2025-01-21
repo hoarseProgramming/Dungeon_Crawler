@@ -179,12 +179,16 @@ internal class AppData
             {
                 SelectedGame = SavedGames[0];
             }
-
-            if (SelectedGame is null)
+            else if (input.Key == ConsoleKey.D2)
             {
-
+                SelectedGame = SavedGames[1];
             }
-            else
+            else if (input.Key == ConsoleKey.D3)
+            {
+                SelectedGame = SavedGames[2];
+            }
+
+            if (SelectedGame is not null)
             {
                 if (SelectedGame.Settings.ShouldAnimateDiceThrows)
                 {
@@ -347,12 +351,12 @@ internal class AppData
     {
         int cursorX = 0;
         int cursorY = 0;
-        for (int y = 0; y < 15; y++)
+        for (int y = 0; y < 16; y++)
         {
             for (int x = 0; x < 39; x++)
             {
                 Console.SetCursorPosition(cursorX, cursorY);
-                if (y == 0 || y == 4 || y == 14)
+                if (y == 0 || y == 4 || y == 15)
                 {
                     Console.Write("#");
                     cursorX++;
