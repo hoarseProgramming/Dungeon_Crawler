@@ -5,7 +5,7 @@ class Hero : Character
 {
     public int Turn { get; set; }
     [BsonIgnore]
-    public bool IsInMenu { get; set; } = false;
+    public bool HasExitedGame { get; set; } = false;
     public int VisionRange { get; set; }
     public void MakeTurn(LevelData currentLevel)
     {
@@ -18,12 +18,16 @@ class Hero : Character
             input.Key != ConsoleKey.RightArrow
             )
         {
-            input = Console.ReadKey(true);
 
             if (input.Key == ConsoleKey.M)
             {
                 Game.RunInGameMenu();
+                if (HasExitedGame)
+                {
+                    return;
+                }
             }
+            input = Console.ReadKey(true);
         }
 
         Position potentialPosition = GetPotentialPosition(input.Key);
@@ -76,7 +80,7 @@ class Hero : Character
         Position = position;
         IsAlive = true;
         Name = name;
-        HP = 40;
+        HP = 1;
         AttackDice = new Dice(2, 6, 2);
         DefenceDice = new Dice(2, 6, 0);
         WasAttackedThisTurn = false;
