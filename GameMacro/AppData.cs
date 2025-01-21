@@ -7,7 +7,7 @@ internal class AppData
         this.SavedGames = savedGames;
     }
 
-    private Game newGame;
+    private Game ChosenGame;
 
     public List<Game> SavedGames;
 
@@ -48,7 +48,7 @@ internal class AppData
             {
                 settings = GetSettings();
             }
-            else if (input.Key == ConsoleKey.Backspace)
+            else if (input.Key == ConsoleKey.D)
             {
                 settings = new Settings();
             }
@@ -89,7 +89,7 @@ internal class AppData
                 Console.Write("Current settings: Modified");
 
                 Console.SetCursorPosition(2, 12);
-                Console.Write("\"Backspace\": Load default settings.");
+                Console.Write("\"D\": Load default settings.");
             }
 
 
@@ -99,31 +99,66 @@ internal class AppData
     }
     public void StartNewGame(Settings settings)
     {
-        newGame = new();
-        newGame.CreateNewGame(settings);
-        newGame.RunGameLoop();
+        ChosenGame = new();
+        ChosenGame.CreateNewGame(settings);
+        ChosenGame.RunGameLoop();
     }
     public void ChooseSavedGame()
     {
         Console.Clear();
 
         WriteMenuBorders();
-        if (SavedGames[0].Settings.ShouldAnimateDiceThrows)
+
+        ConsoleKeyInfo input = new();
+
+        Console.SetCursorPosition(4, 2);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("Choose saved Game: 1, 2 or 3. ");
+        Console.ForegroundColor = ConsoleColor.White;
+
+        while (
+            input.Key != ConsoleKey.D1 &&
+            input.Key != ConsoleKey.D2 &&
+            input.Key != ConsoleKey.D3 &&
+            input.Key != ConsoleKey.Backspace
+            )
         {
-            Console.WriteLine("You have chosen to animate dice throws.");
-            Console.WriteLine("Please maximise your console window now. Press any key when ready.");
-            Console.ReadKey();
-            Console.Clear();
+            Console.SetCursorPosition(2, 6);
+            Console.Write("1:".PadRight(5) + $"Name: {SavedGames[0].Hero.Name}");
+            Console.SetCursorPosition(2, 7);
+            Console.Write($"Turn: {SavedGames[0].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[0].Hero.HP}");
+
+
+
+            input = Console.ReadKey(true);
         }
-        SavedGames[0].CurrentLevel.DrawLevel();
-        SavedGames[0].RunGameLoop();
+
+        if (input.Key != ConsoleKey.Backspace)
+        {
+            if (input.Key == ConsoleKey.D1)
+            {
+                ChosenGame = SavedGames[0];
+            }
+
+            if (ChosenGame.Settings.ShouldAnimateDiceThrows)
+            {
+                Console.WriteLine("You have chosen to animate dice throws.");
+                Console.WriteLine("Please maximise your console window now. Press any key when ready.");
+                Console.ReadKey();
+                Console.Clear();
+            }
+
+            Console.Clear();
+            ChosenGame.CurrentLevel.DrawLevel();
+            ChosenGame.RunGameLoop();
+        }
     }
     public static Settings GetSettings()
     {
         Console.Clear();
         Settings settings = new(isDefaultSettings: false);
 
-        Console.WriteLine("Enter hero name. Simply press enter for default name (highly recommended)");
+        Console.WriteLine("Enter hero name. Simply press enter for default name");
         string heroName = Console.ReadLine();
 
         if (heroName != "")
@@ -131,7 +166,7 @@ internal class AppData
             settings.ChosenHeroName = heroName;
         }
 
-        Console.WriteLine("Do you want to animate dice throws! YES/NO (YES is Highly recommended)");
+        Console.WriteLine("Do you want to animate dice throws! YES/NO");
         string input = String.Empty;
         while (input.ToLower() != "yes" && input.ToLower() != "no")
         {
