@@ -86,7 +86,7 @@ internal class AppData
             Console.Write("Exit".PadRight(17));
             Console.Write("|".PadRight(7) + "\"ESC\"");
 
-            Console.SetCursorPosition(2, 11);
+            Console.SetCursorPosition(2, 12);
 
             if (settings.IsDefaultSettings)
             {
@@ -96,10 +96,9 @@ internal class AppData
             {
                 Console.Write("Current settings: Modified");
 
-                Console.SetCursorPosition(2, 12);
+                Console.SetCursorPosition(2, 13);
                 Console.Write("\"D\": Load default settings.");
             }
-
 
             input = Console.ReadKey(true);
         }
@@ -192,6 +191,7 @@ internal class AppData
             {
                 if (SelectedGame.Settings.ShouldAnimateDiceThrows)
                 {
+                    Console.Clear();
                     Console.WriteLine("You have chosen to animate dice throws.");
                     Console.WriteLine("Please maximise your console window now. Press any key when ready.");
                     Console.ReadKey();
@@ -321,7 +321,7 @@ internal class AppData
         Console.Clear();
         Settings settings = new(isDefaultSettings: false);
 
-        Console.WriteLine("Enter hero name. Simply press enter for default name");
+        Console.WriteLine("Enter hero name. Press \"ENTER\" for default name.");
         string heroName = Console.ReadLine();
 
         if (heroName != "")
