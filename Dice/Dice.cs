@@ -5,7 +5,7 @@ class Dice
     public int SidesPerDie { get; set; }
     public int Modifer { get; set; }
     public string[] AnimatedDice { get; set; }
-    
+
     public int Throw(Character thrower)
     {
         int sum = 0;
@@ -16,7 +16,7 @@ class Dice
             int throwResult = r.Next(1, SidesPerDie + 1);
             sum += throwResult;
         }
-        
+
         return sum + Modifer;
     }
     public void AnimatedAttack(Character attacker, Character defender)
@@ -29,7 +29,7 @@ class Dice
 
         diceThrowersTextLength = PrintDiceThrower(defender, diceThrowersTextLength);
         int defenseRoll = defender.DefenceDice.AnimatedThrow(defender, attacker.AttackDice.NumberOfDice, diceThrowersTextLength);
-        
+
         int damage = attacker.CalculateDamage(attackRoll, defenseRoll);
 
         defender.HP -= damage;
@@ -40,9 +40,8 @@ class Dice
             defender.IsAlive = false;
         }
 
-        attacker.PrintVoiceLine(attacker, defender, attackRoll, defenseRoll, damage);
+        attacker.GenerateVoiceLine(attacker, defender, attackRoll, defenseRoll, damage);
 
-        Thread.Sleep(400);
     }
     public int AnimatedThrow(Character thrower, int thrownDices = 0, int diceThrowersTextLength = 0)
     {
@@ -97,7 +96,7 @@ class Dice
 
         for (int i = 0; i < dieToPrint.Length; i++)
         {
-            
+
             if (dieToPrint[i] != '\n' && dieToPrint[i] != '\r')
             {
                 Console.SetCursorPosition(currentX, currentY);
@@ -115,12 +114,12 @@ class Dice
                 }
             }
         }
-        
+
     }
     public int PrintDiceThrower(Character thrower, int diceThrowersTextLength = 0)
-    {    
+    {
         Console.ForegroundColor = thrower.SpriteColor;
-        
+
         if (diceThrowersTextLength == 0)
         {
             Console.SetCursorPosition(0, 21);
@@ -140,7 +139,7 @@ class Dice
             Console.SetCursorPosition(0, 22);
             if (thrower is Hero)
             {
-                Console.WriteLine($"{thrower.Name} rolls for defence!");               
+                Console.WriteLine($"{thrower.Name} rolls for defence!");
             }
             else
             {
@@ -164,7 +163,7 @@ class Dice
     public static string[] LoadAnimatedDice()
     {
         string pathToAnimatedDice = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net8.0", $"\\Dice\\AnimatedDice.txt");
-       
+
         string[] animatedDice = new string[8];
 
         using (StreamReader reader = new StreamReader(pathToAnimatedDice))
@@ -183,6 +182,6 @@ class Dice
         NumberOfDice = numberOfDice;
         SidesPerDie = sidesPerDie;
         Modifer = modifer;
-        AnimatedDice = LoadAnimatedDice();      
+        AnimatedDice = LoadAnimatedDice();
     }
 }
