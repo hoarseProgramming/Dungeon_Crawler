@@ -38,14 +38,21 @@ namespace Dungeon_Crawler.GameMacro
         }
         public void RunGameLoop()
         {
+            Hero.HasExitedGame = false;
             IsRunning = true;
             while (IsRunning)
             {
                 CurrentLevel.NewTurn();
+                if (Hero.HasExitedGame)
+                {
+                    return;
+                }
                 CurrentLevel.DrawLevel();
                 if (!Hero.IsAlive)
                 {
                     IsRunning = false;
+                    AppData.SavedGames[Id - 1] = null;
+                    DataBaseHandler.DeleteGameFromDatabase(this);
                 }
             }
         }
@@ -139,7 +146,7 @@ namespace Dungeon_Crawler.GameMacro
                 if (input.Key == ConsoleKey.S)
                 {
                     SaveGame();
-
+                    Console.ForegroundColor = ConsoleColor.White;
                     Console.SetCursorPosition(0, 0);
                     Console.Clear();
                     Console.WriteLine("########## Menu ##########");
@@ -163,6 +170,7 @@ namespace Dungeon_Crawler.GameMacro
                 else if (input.Key == ConsoleKey.E)
                 {
                     IsRunning = false;
+                    Hero.HasExitedGame = true;
                 }
                 else if (input.Key == ConsoleKey.L)
                 {
@@ -207,7 +215,10 @@ namespace Dungeon_Crawler.GameMacro
 
             Console.Clear();
 
-            CurrentLevel.DrawLevel();
+            if (!Hero.HasExitedGame)
+            {
+                CurrentLevel.DrawLevel();
+            }
         }
     }
 }
