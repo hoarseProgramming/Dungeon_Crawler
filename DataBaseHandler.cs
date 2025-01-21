@@ -54,18 +54,25 @@ namespace Dungeon_Crawler
             }
             else
             {
-                for (int i = 0; i < 3; i++)
+                foreach (var game in savedGames)
                 {
-                    if (savedGames.Count > i)
-                    {
-                        if (savedGames[i] is not null)
-                        {
-                            saveFile[i] = savedGames[i];
-                        }
-                    }
+                    saveFile[game.Id - 1] = game;
                 }
                 return saveFile;
             }
+        }
+
+        internal static void DeleteGameFromDatabase(Game game)
+        {
+            var connectionString = "mongodb://localhost:27017/";
+
+            var client = new MongoClient(connectionString);
+
+            var savedGamesCollection = client.GetDatabase("HampusEiderströmSwahn").GetCollection<Game>("SavedGames");
+
+            var filter = Builders<Game>.Filter.Eq("_id", game.Id);
+
+            savedGamesCollection.DeleteOne(filter);
         }
     }
 }
