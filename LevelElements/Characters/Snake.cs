@@ -1,4 +1,6 @@
 ﻿
+using Dungeon_Crawler.GameMacro;
+
 class Snake : Enemy
 {
     public void MakeTurn(LevelData currentLevel)
@@ -9,7 +11,7 @@ class Snake : Enemy
         if (heroIsInFleeingRange)
         {
             Position nextPosition = GetNextPosition(currentLevel, distanceFromHero);
-            Move(nextPosition);    
+            Move(nextPosition);
         }
         else if (distanceFromHero == 1)
         {
@@ -22,8 +24,9 @@ class Snake : Enemy
                 EnterCombatPhaseWith(currentLevel.Hero);
             }
         }
+
     }
-    public bool CheckIfHeroIsInFleeingRange( double distanceFromHero)
+    public bool CheckIfHeroIsInFleeingRange(double distanceFromHero)
     {
         if (distanceFromHero > 1 && distanceFromHero <= 2)
         {
@@ -37,7 +40,7 @@ class Snake : Enemy
     public Position GetNextPosition(LevelData currentLevel, double distanceFromHero)
     {
         Position bestPosition = CheckIfThereIsBetterPosition(currentLevel, distanceFromHero);
-        
+
         return bestPosition;
     }
     public Position CheckIfThereIsBetterPosition(LevelData currentLevel, double distanceFromHero)
@@ -69,7 +72,7 @@ class Snake : Enemy
 
         return bestPosition;
     }
-    public Snake(Position position, bool shouldAnimateDiceThrows)
+    public Snake(Position position, bool shouldAnimateDiceThrows, Game game)
     {
         Sprite = 'S';
         SpriteColor = ConsoleColor.Green;
@@ -84,5 +87,7 @@ class Snake : Enemy
         {
             ShouldAnimateDiceThrows = true;
         }
+        Game = game;
+        LogEvent += Game.levelElement_LogMessageSent;
     }
 }

@@ -1,4 +1,8 @@
-﻿
+﻿using Dungeon_Crawler.GameMacro;
+using MongoDB.Bson.Serialization.Attributes;
+
+[BsonKnownTypes(typeof(Hero), typeof(Enemy))]
+
 abstract class Character : LevelElement
 {
     public bool IsAlive { get; set; }
@@ -39,77 +43,79 @@ abstract class Character : LevelElement
         int damage = CalculateDamage(attack, defence);
         opponent.HP -= damage;
         opponent.WasAttackedThisTurn = true;
-        
+
         if (opponent.HP <= 0)
         {
             opponent.IsAlive = false;
         }
-        
-        PrintVoiceLine(this, opponent, attack, defence, damage);
+
+        GenerateVoiceLine(this, opponent, attack, defence, damage);
+
     }
     public int CalculateDamage(int attack, int defence)
     {
         int damage = attack - defence;
-        if (damage > 0) 
-        { 
-            return damage; 
+        if (damage > 0)
+        {
+            return damage;
         }
-        else 
-        { 
-            return 0; 
+        else
+        {
+            return 0;
         }
     }
-    public void PrintVoiceLine(Character attacker, Character opponent, int attack, int defence, int damage)
+    public void GenerateVoiceLine(Character attacker, Character opponent, int attack, int defence, int damage)
     {
         string heroIsAttacking = $"You (ATK: {AttackDice} => {attack}) attacked the {opponent.Name} " +
-                    $"(Def: {opponent.DefenceDice} => {defence}) for {damage} damage";
-        string enemyIsAttacking = $"The {Name} (ATK: {AttackDice} => {attack}) attacked you " +
-                    $"(Def: {opponent.DefenceDice} => {defence}) for {damage} damage";
+                    $"(Def: {opponent.DefenceDice} => {defence}) for {damage} damage.";
 
-        ClearAttackText();
+        string enemyIsAttacking = $"The {Name} (ATK: {AttackDice} => {attack}) attacked you " +
+                    $"(Def: {opponent.DefenceDice} => {defence}) for {damage} damage.";
+
+        MessageType messageType = attacker.WasAttackedThisTurn ? MessageType.Retaliation : MessageType.Attack;
+
+        bool isKillingBlow = !opponent.IsAlive;
 
         if (attacker is Hero)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
             if (!opponent.IsAlive)
             {
-                Console.WriteLine($"{heroIsAttacking}. \"May you writhe in agony in thy grave.\"".PadRight(Console.BufferWidth));
+                heroIsAttacking += " \"May you writhe in agony in thy grave!\"";
             }
             else if (damage == 0)
             {
-                Console.WriteLine($"{heroIsAttacking}. \"Hmm, something's wrong with this sword.\"".PadRight(Console.BufferWidth));
+                heroIsAttacking += " \"Hmm, something's wrong with this sword?\"";
             }
             else if (damage < 5)
             {
-                Console.WriteLine($"{heroIsAttacking}. \"Got you good feeble monster!\"".PadRight(Console.BufferWidth));
+                heroIsAttacking += " \"Got you good feeble monster!\"";
             }
             else
             {
-                Console.WriteLine($"{heroIsAttacking}. \"Mmm, I love the smell of blood in the morning.\"".PadRight(Console.BufferWidth));
+                heroIsAttacking += " \"Mmm, I love the smell of blood in the morning!\"";
             }
+            OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, heroIsAttacking, messageType, damage, isKillingBlow)));
         }
         else
         {
             if (!opponent.IsAlive)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{enemyIsAttacking}! You die.".PadRight(Console.BufferWidth));
+                enemyIsAttacking += " You die!";
             }
             else if (damage == 0)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"{enemyIsAttacking}! \"What a fool!\"".PadRight(Console.BufferWidth));
+                enemyIsAttacking += " \"What a fool!\"";
             }
             else if (damage < 5)
             {
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine($"{enemyIsAttacking}! \"Bah! It's only a fleshwound!\"".PadRight(Console.BufferWidth));
+                enemyIsAttacking += " \"Bah! It's only a fleshwound!\"";
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{enemyIsAttacking}! \"Hmph! You're making me angry\"".PadRight(120));     
+                enemyIsAttacking += " \"Hmph! You're making me angry!\"";
             }
+
+            OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, enemyIsAttacking, messageType, damage, isKillingBlow)));
         }
     }
     public void ClearAttackText()
@@ -127,10 +133,10 @@ abstract class Character : LevelElement
         }
     }
     public void Retaliate(Character opponent)
-    {     
+    {
         if (this.IsAlive && opponent.IsAlive)
         {
-            opponent.Attack(this);        
+            opponent.Attack(this);
         }
     }
     public void AnimatedRetaliate(Character opponent)
@@ -152,6 +158,18 @@ abstract class Character : LevelElement
         if (IsInsideVisionRange)
         {
             Draw();
+            if (this is Snake)
+            {
+                OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, $"The {Name} is running from you!", MessageType.Movement)));
+            }
+            else if (this is Rat)
+            {
+                OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, $"The {Name} skittering about.", MessageType.Movement)));
+            }
+            else
+            {
+                OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, $"You take another step in the dark dungeon", MessageType.Movement)));
+            }
         }
     }
     public void RemoveFromPlayingField()
@@ -159,5 +177,5 @@ abstract class Character : LevelElement
         Console.SetCursorPosition(Position.X, Position.Y);
         Console.Write(' ');
     }
-    
+
 }

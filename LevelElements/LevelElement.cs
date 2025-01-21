@@ -1,15 +1,22 @@
-﻿
+﻿using Dungeon_Crawler.GameMacro;
+using MongoDB.Bson.Serialization.Attributes;
+
+[BsonKnownTypes(typeof(Wall), typeof(Character))]
 abstract class LevelElement
 {
+    [BsonIgnore]
+    public Game Game { get; set; }
     protected bool _isInsideVisionRange = false;
     public bool IsInsideVisionRange
     {
         get { return _isInsideVisionRange; }
-        set { _isInsideVisionRange = value; }     
+        set { _isInsideVisionRange = value; }
     }
     public Position Position { get; set; }
     public Char Sprite { get; set; }
-    public ConsoleColor SpriteColor { get; set;  }
+    public ConsoleColor SpriteColor { get; set; }
+    public event EventHandler<LogMessageSentEventArgs>? LogEvent;
+    protected virtual void OnLogEvent(LogMessageSentEventArgs e) => LogEvent?.Invoke(this, e);
     public void Draw()
     {
         Console.SetCursorPosition(Position.X, Position.Y);
@@ -26,12 +33,12 @@ abstract class LevelElement
             else
             {
                 Console.ForegroundColor = SpriteColor;
-                Console.Write(Sprite);   
+                Console.Write(Sprite);
             }
         }
         else
         {
-             Console.Write(' ');  
+            Console.Write(' ');
         }
     }
     public virtual void UpdateIsInsideVisionRange(Hero hero)
@@ -45,5 +52,9 @@ abstract class LevelElement
         {
             IsInsideVisionRange = false;
         }
+    }
+    public void SetGame(Game game)
+    {
+        this.Game = game;
     }
 }

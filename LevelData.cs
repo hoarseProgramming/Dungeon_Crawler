@@ -1,32 +1,52 @@
-﻿
+﻿using Dungeon_Crawler.GameMacro;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
+
 class LevelData
 {
+    public LevelData(int levelNumber, Game game)
+    {
+        this.levelNumber = levelNumber;
+        Game = game;
+    }
+    [BsonIgnore]
+    public Game Game { get; set; }
+    public int levelNumber { get; set; }
     private List<LevelElement> _elements = new List<LevelElement>();
-    public List<LevelElement> Elements { get { return _elements; } }
+
+    public List<LevelElement> Elements
+    {
+        get => _elements;
+        set
+        {
+            _elements = value;
+        }
+    }
     private List<Character> _characters = new List<Character>();
-    public List<Character> Characters 
-    { 
-        get 
-        { 
-            return _characters; 
-        } 
-        set 
-        { 
-            _characters = value; 
-        } 
+    [BsonIgnore]
+    public List<Character> Characters
+    {
+        get
+        {
+            return _characters;
+        }
+        set
+        {
+            _characters = value;
+        }
     }
     public Hero Hero { get; set; }
-    public void Load(string levelFileName, List<object> settings)
+    public void Load(Settings settings, Hero hero)
     {
-        LoadAllLevelElements(levelFileName, settings);
+        LoadAllLevelElements(settings, hero);
         LoadCharacters();
         UpdateVision();
         PrintStatusBar();
         DrawLevel();
     }
-    public void LoadAllLevelElements(string levelFileName, List<Object> settings)
+    public void LoadAllLevelElements(Settings settings, Hero hero)
     {
-        string pathToLevel = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net8.0", $"\\Levels\\{levelFileName}");
+        string pathToLevel = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net8.0", $"\\Levels\\{levelNumber}.txt");
 
         using (StreamReader reader = new StreamReader(pathToLevel))
         {
@@ -36,20 +56,23 @@ class LevelData
                 char currentChar = (char)reader.Read();
                 if (currentChar == '#')
                 {
-                    _elements.Add(new Wall(new Position(readerPosition.X, readerPosition.Y)));
+                    _elements.Add(new Wall(new Position(readerPosition.X, readerPosition.Y), Game));
                 }
                 else if (currentChar == '@')
                 {
-                    _elements.Add(new Hero(new Position(readerPosition.X, readerPosition.Y), (bool)settings[0], (string)settings[1]));
-                    Hero = (Hero)Elements[Elements.Count - 1];
+                    hero.Position = new Position(readerPosition.X, readerPosition.Y);
+                    hero.ShouldAnimateDiceThrows = settings.ShouldAnimateDiceThrows;
+                    hero.Name = settings.ChosenHeroName;
+                    _elements.Add(hero);
+                    Hero = hero;
                 }
                 else if (currentChar == 'r')
                 {
-                    _elements.Add(new Rat(new Position(readerPosition.X, readerPosition.Y), (bool)settings[0]));
+                    _elements.Add(new Rat(new Position(readerPosition.X, readerPosition.Y), settings.ShouldAnimateDiceThrows, Game));
                 }
                 else if (currentChar == 's')
                 {
-                    _elements.Add(new Snake(new Position(readerPosition.X, readerPosition.Y), (bool)settings[0]));
+                    _elements.Add(new Snake(new Position(readerPosition.X, readerPosition.Y), settings.ShouldAnimateDiceThrows, Game));
                 }
                 else if (currentChar == '\n')
                 {
@@ -62,7 +85,7 @@ class LevelData
         }
     }
     public void LoadCharacters()
-    {    
+    {
         Characters = Elements
             .Where(element => element is Character)
             .ToList()
@@ -76,9 +99,9 @@ class LevelData
             heroHP = 0;
         }
         Console.SetCursorPosition(0, 0);
-        
+
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"Name: {Hero.Name}  -  Health: {$"{heroHP}/100".PadLeft(7)}  -  Turn: {$"{Hero.Turn}".PadLeft(5)}");
+        Console.WriteLine($"Name: {Hero.Name}  -  Health: {$"{heroHP}/100".PadLeft(7)}  -  Turn: {$"{Hero.Turn}".PadLeft(5)}    |   \"M\": Menu");
     }
     public void DrawLevel()
     {
@@ -88,7 +111,7 @@ class LevelData
             element.Draw();
         }
         if (!Hero.IsAlive)
-        {            
+        {
             Console.ForegroundColor = ConsoleColor.Red;
             if (Hero.ShouldAnimateDiceThrows)
             {
@@ -105,11 +128,14 @@ class LevelData
         foreach (var element in Elements)
         {
             element.UpdateIsInsideVisionRange(Hero);
+            element.Draw();
         }
     }
     public void NewTurn()
     {
         Hero.MakeTurn(this);
+
+        UpdateVision();
 
         foreach (var element in Elements)
         {
@@ -121,9 +147,9 @@ class LevelData
                     {
                         (enemy as Rat)?.MakeTurn(this);
                         (enemy as Snake)?.MakeTurn(this);
-                    }                  
+                    }
                 }
-            }    
+            }
         }
         UpdateVision();
         RemoveDeadCharacters();
@@ -143,7 +169,27 @@ class LevelData
                 {
                     character.RemoveFromPlayingField();
                     Elements.Remove(character);
-                }         
+                }
+            }
+        }
+    }
+
+    internal void DeMongoLevel(Game game)
+    {
+        Game = game;
+
+        foreach (var element in Elements)
+        {
+            element.SetGame(Game);
+            element.LogEvent += Game.levelElement_LogMessageSent;
+        }
+        LoadCharacters();
+
+        foreach (var character in Characters)
+        {
+            if (character is Hero)
+            {
+                Hero = character as Hero;
             }
         }
     }

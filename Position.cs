@@ -1,5 +1,8 @@
 ﻿
+using System.Diagnostics;
+
 enum Direction { UP, DOWN, LEFT, RIGHT }
+[DebuggerDisplay("x = {X,nq}, Y = {Y,nq}")]
 struct Position
 {
     public int X { get; set; }

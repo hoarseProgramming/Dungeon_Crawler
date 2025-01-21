@@ -1,13 +1,33 @@
-﻿
+﻿using Dungeon_Crawler.GameMacro;
+using MongoDB.Bson.Serialization.Attributes;
+
 class Hero : Character
 {
-    
     public int Turn { get; set; }
+    [BsonIgnore]
+    public bool IsInMenu { get; set; } = false;
     public int VisionRange { get; set; }
     public void MakeTurn(LevelData currentLevel)
     {
-        Position potentialPosition = GetPotentialPosition();
-        
+        ConsoleKeyInfo input = new();
+
+        while (
+            input.Key != ConsoleKey.UpArrow &&
+            input.Key != ConsoleKey.DownArrow &&
+            input.Key != ConsoleKey.LeftArrow &&
+            input.Key != ConsoleKey.RightArrow
+            )
+        {
+            input = Console.ReadKey(true);
+
+            if (input.Key == ConsoleKey.M)
+            {
+                Game.RunInGameMenu();
+            }
+        }
+
+        Position potentialPosition = GetPotentialPosition(input.Key);
+
         LevelElement elementCollidedWith = CheckCollision(currentLevel.Elements, potentialPosition);
 
         if (elementCollidedWith is Enemy opponent)
@@ -21,23 +41,25 @@ class Hero : Character
                 EnterCombatPhaseWith(opponent);
             }
         }
-        else if (!(elementCollidedWith is Wall)) 
+        else if (!(elementCollidedWith is Wall))
         {
             Move(potentialPosition);
-            ClearAttackText();
+
+            //ClearAttackText();
+
             if (ShouldAnimateDiceThrows)
             {
                 AttackDice.ClearDiceText();
-            }       
+            }
         }
-  
+
         Turn++;
     }
-    public Position GetPotentialPosition()
+    public Position GetPotentialPosition(ConsoleKey input)
     {
-        ConsoleKeyInfo input = Console.ReadKey(true);
+        //ConsoleKeyInfo input = Console.ReadKey(true);
 
-        return input.Key switch
+        return input switch
         {
             ConsoleKey.UpArrow => Position.GetPositionOneStepIn(Direction.UP),
             ConsoleKey.DownArrow => Position.GetPositionOneStepIn(Direction.DOWN),
@@ -46,8 +68,9 @@ class Hero : Character
             _ => Position
         };
     }
-    public Hero(Position position, bool shouldAnimateDiceThrows, string name)
+    public Hero(Position position, bool shouldAnimateDiceThrows, string name, Game game)
     {
+        Game = game;
         Sprite = '@';
         SpriteColor = ConsoleColor.Yellow;
         Position = position;
@@ -63,5 +86,6 @@ class Hero : Character
         {
             ShouldAnimateDiceThrows = true;
         }
+        LogEvent += Game.levelElement_LogMessageSent;
     }
 }

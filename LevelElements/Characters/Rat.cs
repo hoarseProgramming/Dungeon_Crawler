@@ -1,4 +1,6 @@
 ﻿
+using Dungeon_Crawler.GameMacro;
+
 class Rat : Enemy
 {
     public void MakeTurn(LevelData currentLevel)
@@ -16,13 +18,13 @@ class Rat : Enemy
             else
             {
                 EnterCombatPhaseWith(opponent);
-            }           
+            }
         }
         else if (elementCollidedWith is Enemy || elementCollidedWith is Wall) { }
         else
         {
             Move(potentialPosition);
-        }        
+        }
     }
     public Position GetPotentialPosition()
     {
@@ -37,7 +39,7 @@ class Rat : Enemy
             Direction.RIGHT => Position.GetPositionOneStepIn(direction)
         };
     }
-    public Rat(Position position, bool shouldAnimateDiceThrows)
+    public Rat(Position position, bool shouldAnimateDiceThrows, Game game)
     {
         Sprite = 'r';
         SpriteColor = ConsoleColor.Red;
@@ -52,5 +54,7 @@ class Rat : Enemy
         {
             ShouldAnimateDiceThrows = true;
         }
+        Game = game;
+        LogEvent += Game.levelElement_LogMessageSent;
     }
 }
