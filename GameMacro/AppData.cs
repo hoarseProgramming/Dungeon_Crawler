@@ -106,6 +106,8 @@ internal class AppData
     public void ChooseSavedGame()
     {
         Console.Clear();
+
+        WriteMenuBorders();
         if (SavedGames[0].Settings.ShouldAnimateDiceThrows)
         {
             Console.WriteLine("You have chosen to animate dice throws.");
