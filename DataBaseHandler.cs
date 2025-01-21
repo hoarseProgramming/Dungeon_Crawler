@@ -21,6 +21,7 @@ namespace Dungeon_Crawler
                     .Set("Hero", game.Hero)
                     .Set("CurrentLevel", game.CurrentLevel)
                     .Set("Levels", game.Levels)
+                    .Set("Settings", game.Settings)
                     .Set("GameLog", game.GameLog);
 
                 savedGamesCollection.UpdateOne(filter, savedGameUpdate);
