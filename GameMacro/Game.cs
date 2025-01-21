@@ -90,6 +90,8 @@ namespace Dungeon_Crawler.GameMacro
 
         internal void RunInGameMenu()
         {
+            Console.ForegroundColor = ConsoleColor.White;
+
             int currentLogIndex = GameLog.LogMessages.Count;
 
             ConsoleKeyInfo input = new();
