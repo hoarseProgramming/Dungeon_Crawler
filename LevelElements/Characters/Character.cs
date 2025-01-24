@@ -94,7 +94,7 @@ abstract class Character : LevelElement
             {
                 heroIsAttacking += " \"Mmm, I love the smell of blood in the morning!\"";
             }
-            OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, heroIsAttacking, messageType, damage, isKillingBlow)));
+            OnLogEvent(new LogMessageSentEventArgs(new LogMessage(this, heroIsAttacking, messageType, damage, isKillingBlow, opponent)));
         }
         else
         {

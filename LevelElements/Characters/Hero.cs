@@ -7,7 +7,7 @@ class Hero : Character
     [BsonIgnore]
     public bool HasExitedGame { get; set; } = false;
     public int VisionRange { get; set; }
-    public void MakeTurn(LevelData currentLevel)
+    public async Task MakeTurn(LevelData currentLevel)
     {
         ConsoleKeyInfo input = new();
 
@@ -21,7 +21,7 @@ class Hero : Character
 
             if (input.Key == ConsoleKey.M)
             {
-                Game.RunInGameMenu();
+                await Game.RunInGameMenu();
                 if (HasExitedGame)
                 {
                     return;
@@ -80,7 +80,7 @@ class Hero : Character
         Position = position;
         IsAlive = true;
         Name = name;
-        HP = 1;
+        HP = 100;
         AttackDice = new Dice(2, 6, 2);
         DefenceDice = new Dice(2, 6, 0);
         WasAttackedThisTurn = false;

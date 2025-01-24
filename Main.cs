@@ -1,13 +1,10 @@
-﻿
-using Dungeon_Crawler;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
+﻿internal class Program
+{
+    private static async Task Main(string[] args)
+    {
+        var AppData = new AppData();
 
-BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-
-var saveFile = DataBaseHandler.LoadGamesFromDataBase();
-
-var userInterface = new AppData(saveFile);
-
-userInterface.RunMainMenu();
+        await AppData.LoadSavedGames();
+        await AppData.RunMainMenu();
+    }
+}

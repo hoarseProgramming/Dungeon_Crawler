@@ -11,13 +11,14 @@ enum MessageType
 
 internal class LogMessage
 {
-    public LogMessage(LevelElement sender, string message, MessageType messageType, int attackDamage = 0, bool isKillingBlow = false)
+    public LogMessage(LevelElement sender, string message, MessageType messageType, int attackDamage = 0, bool isKillingBlow = false, Character enemy = null)
     {
         Sender = sender;
         Message = message;
         MessageType = messageType;
         AttackDamage = attackDamage;
         IsKillingBlow = isKillingBlow;
+        Enemy = enemy;
     }
     public MessageType MessageType { get; set; }
     public LevelElement Sender { get; set; }
@@ -25,4 +26,5 @@ internal class LogMessage
     public int LogNumber { get; set; }
     public int AttackDamage { get; set; }
     public bool IsKillingBlow { get; set; }
+    public Character? Enemy { get; set; }
 }

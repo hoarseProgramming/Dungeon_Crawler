@@ -1,31 +1,21 @@
-﻿using Dungeon_Crawler.GameMacro;
+﻿using Dungeon_Crawler;
+using Dungeon_Crawler.GameMacro;
 
 internal class AppData
 {
-    public AppData(Game[] savedGames)
-    {
-        SavedGames = savedGames;
 
-        foreach (var game in savedGames)
-        {
-            if (game is not null)
-            {
-                game.DeMongoGame(this);
-            }
-        }
-    }
+    public bool HasEstablishedConnectionToDatabase = false;
 
     private Game? SelectedGame;
 
     public Game[] SavedGames;
 
     private Settings settings = new();
-    public void RunMainMenu()
+    public async Task RunMainMenu()
     {
         Console.ForegroundColor = ConsoleColor.White;
         Console.CursorVisible = false;
         ConsoleKeyInfo input = new();
-
 
         while (input.Key != ConsoleKey.Escape)
         {
@@ -34,7 +24,7 @@ internal class AppData
                 Console.Clear();
                 if (settings.IsDefaultSettings)
                 {
-                    StartNewGame(settings);
+                    await StartNewGame(settings);
                 }
                 else
                 {
@@ -45,83 +35,43 @@ internal class AppData
                         Console.ReadKey();
                         Console.Clear();
                     }
-                    StartNewGame(settings);
+                    await StartNewGame(settings);
                 }
             }
             else if (input.Key == ConsoleKey.L)
             {
-                SelectSaveFileForLoading();
+                if (HasEstablishedConnectionToDatabase) await SelectSaveFileForLoading();
             }
             else if (input.Key == ConsoleKey.Spacebar)
             {
                 settings = GetSettings();
+                Console.Clear();
+            }
+            else if (input.Key == ConsoleKey.R)
+            {
+                if (!HasEstablishedConnectionToDatabase) await LoadSavedGames();
             }
             else if (input.Key == ConsoleKey.D)
             {
                 settings = new Settings();
             }
 
-            Console.Clear();
-
-            WriteMenuBorders();
-
-            Console.SetCursorPosition(13, 2);
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("Hoarse Dungeon");
-
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.SetCursorPosition(2, 6);
-            Console.Write("Start new game".PadRight(17));
-            Console.Write("|".PadRight(7) + "\"Enter\"");
-
-            Console.SetCursorPosition(2, 7);
-            Console.Write("Load Game".PadRight(17));
-            Console.Write("|".PadRight(7) + "\"L\"");
-
-            Console.SetCursorPosition(2, 8);
-            Console.Write("Settings".PadRight(17));
-            Console.Write("|".PadRight(7) + "\"Space\"");
-
-            Console.SetCursorPosition(2, 9);
-            Console.Write("Exit".PadRight(17));
-            Console.Write("|".PadRight(7) + "\"ESC\"");
-
-            Console.SetCursorPosition(2, 12);
-
-            if (settings.IsDefaultSettings)
-            {
-                Console.Write("Current settings: Default");
-            }
-            else
-            {
-                Console.Write("Current settings: Modified");
-
-                Console.SetCursorPosition(2, 13);
-                Console.Write("\"D\": Load default settings.");
-            }
+            ConsoleWriter.WriteMainMenu(HasEstablishedConnectionToDatabase);
 
             input = Console.ReadKey(true);
         }
-        Console.ForegroundColor = ConsoleColor.Gray;
     }
-    public void StartNewGame(Settings settings)
+    public async Task StartNewGame(Settings settings)
     {
         SelectedGame = new();
         SelectedGame.CreateNewGame(settings, this);
-        SelectedGame.RunGameLoop();
+        await SelectedGame.RunGameLoop();
     }
-    public void SelectSaveFileForLoading()
+    public async Task SelectSaveFileForLoading()
     {
-        Console.Clear();
-
-        WriteMenuBorders();
+        ConsoleWriter.WriteSaveFiles(SavedGames);
 
         ConsoleKeyInfo input = new();
-
-        Console.SetCursorPosition(4, 2);
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write("Select save file: 1, 2 or 3. ");
-        Console.ForegroundColor = ConsoleColor.White;
 
         while (
             input.Key != ConsoleKey.D1 &&
@@ -130,45 +80,6 @@ internal class AppData
             input.Key != ConsoleKey.Backspace
             )
         {
-            if (SavedGames[0] is not null)
-            {
-                Console.SetCursorPosition(2, 6);
-                Console.Write("1:".PadRight(5) + $"Name: {SavedGames[0].Hero.Name}");
-                Console.SetCursorPosition(2, 7);
-                Console.Write($"Turn: {SavedGames[0].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[0].Hero.HP}");
-            }
-            else
-            {
-                Console.SetCursorPosition(2, 6);
-                Console.Write("1:".PadRight(5) + "Empty");
-            }
-
-            if (SavedGames[1] is not null)
-            {
-                Console.SetCursorPosition(2, 9);
-                Console.Write("2:".PadRight(5) + $"Name: {SavedGames[1].Hero.Name}");
-                Console.SetCursorPosition(2, 10);
-                Console.Write($"Turn: {SavedGames[1].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[1].Hero.HP}");
-            }
-            else
-            {
-                Console.SetCursorPosition(2, 9);
-                Console.Write("2:".PadRight(5) + "Empty");
-            }
-
-            if (SavedGames[2] is not null)
-            {
-                Console.SetCursorPosition(2, 12);
-                Console.Write("3:".PadRight(5) + $"Name: {SavedGames[2].Hero.Name}");
-                Console.SetCursorPosition(2, 13);
-                Console.Write($"Turn: {SavedGames[2].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[2].Hero.HP}");
-            }
-            else
-            {
-                Console.SetCursorPosition(2, 12);
-                Console.Write("3:".PadRight(5) + "Empty");
-            }
-
             input = Console.ReadKey(true);
         }
 
@@ -200,7 +111,7 @@ internal class AppData
 
                 Console.Clear();
                 SelectedGame.CurrentLevel.DrawLevel();
-                SelectedGame.RunGameLoop();
+                await SelectedGame.RunGameLoop();
             }
 
             Console.Clear();
@@ -210,61 +121,15 @@ internal class AppData
     {
         Console.Clear();
 
-        WriteMenuBorders();
+        ConsoleWriter.WriteSaveFiles(SavedGames);
 
         ConsoleKeyInfo input = new();
-
-        Console.SetCursorPosition(4, 2);
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write("Select save file: 1, 2 or 3. ");
-        Console.SetCursorPosition(4, 3);
-        Console.Write("Return to game - Backspace");
-        Console.ForegroundColor = ConsoleColor.White;
 
         while (input.Key != ConsoleKey.D1 &&
             input.Key != ConsoleKey.D2 &&
             input.Key != ConsoleKey.D3 &&
             input.Key != ConsoleKey.Backspace)
         {
-            if (SavedGames[0] is not null)
-            {
-                Console.SetCursorPosition(2, 6);
-                Console.Write("1:".PadRight(5) + $"Name: {SavedGames[0].Hero.Name}");
-                Console.SetCursorPosition(2, 7);
-                Console.Write($"Turn: {SavedGames[0].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[0].Hero.HP}");
-            }
-            else
-            {
-                Console.SetCursorPosition(2, 6);
-                Console.Write("1:".PadRight(5) + "Empty");
-            }
-
-            if (SavedGames[1] is not null)
-            {
-                Console.SetCursorPosition(2, 9);
-                Console.Write("2:".PadRight(5) + $"Name: {SavedGames[1].Hero.Name}");
-                Console.SetCursorPosition(2, 10);
-                Console.Write($"Turn: {SavedGames[1].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[1].Hero.HP}");
-            }
-            else
-            {
-                Console.SetCursorPosition(2, 9);
-                Console.Write("2:".PadRight(5) + "Empty");
-            }
-
-            if (SavedGames[2] is not null)
-            {
-                Console.SetCursorPosition(2, 12);
-                Console.Write("3:".PadRight(5) + $"Name: {SavedGames[2].Hero.Name}");
-                Console.SetCursorPosition(2, 13);
-                Console.Write($"Turn: {SavedGames[2].Hero.Turn}".PadRight(18) + "|".PadRight(3) + $"HP: {SavedGames[2].Hero.HP}");
-            }
-            else
-            {
-                Console.SetCursorPosition(2, 12);
-                Console.Write("3:".PadRight(5) + "Empty");
-            }
-
             input = Console.ReadKey(true);
 
             if (input.Key == ConsoleKey.D1 ||
@@ -288,13 +153,7 @@ internal class AppData
 
                 if (SavedGames[selectedSaveFile - 1] is not null)
                 {
-                    Console.Clear();
-
-                    WriteMenuBorders();
-
-                    Console.SetCursorPosition(4, 2);
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("Overwrite save? YES/NO");
+                    ConsoleWriter.WriteOverwriteQuery();
 
                     Console.SetCursorPosition(18, 9);
                     string choice = Console.ReadLine();
@@ -353,7 +212,7 @@ internal class AppData
         int cursorY = 0;
         for (int y = 0; y < 16; y++)
         {
-            for (int x = 0; x < 39; x++)
+            for (int x = 0; x < 41; x++)
             {
                 Console.SetCursorPosition(cursorX, cursorY);
                 if (y == 0 || y == 4 || y == 15)
@@ -379,5 +238,56 @@ internal class AppData
             cursorY++;
             cursorX = 0;
         }
+    }
+    public async Task LoadSavedGames()
+    {
+        ConsoleWriter.WriteLoadingStatus();
+        Console.CursorVisible = true;
+
+        SavedGames = await DataBaseHandler.LoadGamesFromDataBase();
+
+        if (SavedGames[0]?.Id == 4)
+        {
+            ConsoleWriter.WriteLoadFailMessage();
+
+
+            Console.ReadKey(true);
+        }
+        else if (!SavedGames.Any(g => g?.Id == 1))
+        {
+            Console.SetCursorPosition(3, 6);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Connected to database!".PadRight(27));
+
+            Console.SetCursorPosition(3, 7);
+            Console.Write("Couldn't find any saved games.");
+
+            Console.SetCursorPosition(3, 9);
+            Console.Write("Good luck!");
+
+            Console.CursorVisible = false;
+            Console.SetCursorPosition(3, 11);
+            Console.Write("Press any key to continue");
+            HasEstablishedConnectionToDatabase = true;
+
+            Console.ReadKey(true);
+        }
+        else
+        {
+            Console.SetCursorPosition(5, 6);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Games loaded successfully!");
+
+            foreach (var game in SavedGames)
+            {
+                if (game is not null)
+                {
+                    game.DeMongoGame(this);
+                }
+            }
+
+            HasEstablishedConnectionToDatabase = true;
+        }
+
     }
 }

@@ -131,9 +131,9 @@ class LevelData
             element.Draw();
         }
     }
-    public void NewTurn()
+    public async Task NewTurn()
     {
-        Hero.MakeTurn(this);
+        await Hero.MakeTurn(this);
         if (Hero.HasExitedGame)
         {
             return;

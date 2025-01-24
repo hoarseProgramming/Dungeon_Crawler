@@ -36,13 +36,14 @@ namespace Dungeon_Crawler.GameMacro
 
             AppData = appData;
         }
-        public void RunGameLoop()
+        public async Task RunGameLoop()
         {
+            Console.CursorVisible = false;
             Hero.HasExitedGame = false;
             IsRunning = true;
             while (IsRunning)
             {
-                CurrentLevel.NewTurn();
+                await CurrentLevel.NewTurn();
                 if (Hero.HasExitedGame)
                 {
                     return;
@@ -100,27 +101,81 @@ namespace Dungeon_Crawler.GameMacro
                 Thread.Sleep(400);
             }
         }
-        internal void SaveGame()
+        internal async Task<SaveGameOutcome> SaveGame()
         {
+            SaveGameOutcome outcome = new();
+
+            bool saveIsSuccesful = false;
+
             if (AppData.SavedGames.Any(g => g?.Id == Id))
             {
-                DataBaseHandler.SaveGameToDataBase(this);
+                Console.CursorVisible = true;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.SetCursorPosition(0, 0);
+                Console.Clear();
+                Console.WriteLine("########## Menu ##########");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("##########################");
+
+                Console.SetCursorPosition(6, 3);
+
+                Console.Write("Saving...");
+
+
+                saveIsSuccesful = await DataBaseHandler.SaveGameToDataBase(this);
             }
             else
             {
                 Id = AppData.SelectSaveFileForSaving();
 
+                Console.CursorVisible = true;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.SetCursorPosition(0, 0);
+                Console.Clear();
+                Console.WriteLine("########## Menu ##########");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("#                        #");
+                Console.WriteLine("##########################");
+
+                Console.SetCursorPosition(6, 3);
+
+                Console.Write("Saving...");
+
                 if (Id != 0)
                 {
-                    DataBaseHandler.SaveGameToDataBase(this);
-                    AppData.SavedGames[Id - 1] = this;
+                    saveIsSuccesful = await DataBaseHandler.SaveGameToDataBase(this);
+
+                    if (saveIsSuccesful)
+                    {
+                        AppData.SavedGames[Id - 1] = this;
+                    }
+                }
+                else
+                {
+                    outcome.DidNotChooseSaveFile = true;
                 }
             }
 
-            CurrentLevel.DrawLevel();
+            outcome.SaveIsSuccessful = saveIsSuccesful;
+            return outcome;
         }
 
-        internal void RunInGameMenu()
+        internal async Task RunInGameMenu()
         {
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -128,7 +183,7 @@ namespace Dungeon_Crawler.GameMacro
 
             ConsoleKeyInfo input = new();
 
-            while (input.Key != ConsoleKey.Escape && input.Key != ConsoleKey.E)
+            while (input.Key != ConsoleKey.Escape && input.Key != ConsoleKey.B)
             {
                 Console.SetCursorPosition(0, 0);
                 Console.Clear();
@@ -138,9 +193,9 @@ namespace Dungeon_Crawler.GameMacro
                 Console.WriteLine("#                        #");
                 Console.WriteLine("# \"S\": Save Game         #");
                 Console.WriteLine("#                        #");
-                Console.WriteLine("# \"Escape\": Exit Menu    #");
+                Console.WriteLine("# \"B\": Back to Game      #");
                 Console.WriteLine("#                        #");
-                Console.WriteLine("# \"E\": Go to main menu   #");
+                Console.WriteLine("# \"Escape\": Main menu    #");
                 Console.WriteLine("#                        #");
                 Console.WriteLine("##########################");
 
@@ -149,44 +204,94 @@ namespace Dungeon_Crawler.GameMacro
 
                 if (input.Key == ConsoleKey.S)
                 {
-                    SaveGame();
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.SetCursorPosition(0, 0);
-                    Console.Clear();
-                    Console.WriteLine("########## Menu ##########");
-                    Console.WriteLine("#                        #");
-                    Console.WriteLine("#                        #");
-                    Console.WriteLine("#       Game saved!      #");
-                    Console.WriteLine("#                        #");
-                    Console.WriteLine("#      Press any key     #");
-                    Console.WriteLine("#       to continue.     #");
-                    Console.WriteLine("#                        #");
-                    Console.WriteLine("#                        #");
-                    Console.WriteLine("#                        #");
-                    Console.WriteLine("##########################");
-                    Console.WriteLine();
+                    if (AppData.HasEstablishedConnectionToDatabase)
+                    {
+                        SaveGameOutcome outcome = await SaveGame();
 
-                    Console.ReadKey();
+                        Console.CursorVisible = false;
 
+                        if (outcome.SaveIsSuccessful)
+                        {
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.SetCursorPosition(0, 0);
+                            Console.Clear();
+                            Console.WriteLine("########## Menu ##########");
+                            Console.WriteLine("#                        #");
+                            Console.WriteLine("#                        #");
+                            Console.WriteLine("#       Game saved!      #");
+                            Console.WriteLine("#                        #");
+                            Console.WriteLine("#      Press any key     #");
+                            Console.WriteLine("#       to continue.     #");
+                            Console.WriteLine("#                        #");
+                            Console.WriteLine("#                        #");
+                            Console.WriteLine("#                        #");
+                            Console.WriteLine("##########################");
+                            Console.WriteLine();
 
-                    GameLog.AddLogMessage(new LogMessage(Hero, "Game saved", MessageType.Save));
+                            Console.ReadKey();
+
+                            GameLog.AddLogMessage(new LogMessage(Hero, "Game saved", MessageType.Save));
+                        }
+                        else
+                        {
+                            if (!outcome.DidNotChooseSaveFile)
+                            {
+                                AppData.HasEstablishedConnectionToDatabase = false;
+
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.SetCursorPosition(0, 0);
+                                Console.Clear();
+                                Console.WriteLine("########## Menu ##########");
+                                Console.WriteLine("#                        #");
+                                Console.WriteLine("#                        #");
+                                Console.WriteLine("#      No connection.    #");
+                                Console.WriteLine("#       Can't save!      #");
+                                Console.WriteLine("#                        #");
+                                Console.WriteLine("#      Press any key     #");
+                                Console.WriteLine("#       to continue.     #");
+                                Console.WriteLine("#                        #");
+                                Console.WriteLine("#                        #");
+                                Console.WriteLine("##########################");
+                                Console.WriteLine();
+
+                                Console.ReadKey();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.SetCursorPosition(0, 0);
+                        Console.Clear();
+                        Console.WriteLine("########## Menu ##########");
+                        Console.WriteLine("#                        #");
+                        Console.WriteLine("#                        #");
+                        Console.WriteLine("#      No connection.    #");
+                        Console.WriteLine("#       Can't save!      #");
+                        Console.WriteLine("#                        #");
+                        Console.WriteLine("#      Press any key     #");
+                        Console.WriteLine("#       to continue.     #");
+                        Console.WriteLine("#                        #");
+                        Console.WriteLine("#                        #");
+                        Console.WriteLine("##########################");
+                        Console.WriteLine();
+
+                        Console.ReadKey();
+                    }
                 }
-                else if (input.Key == ConsoleKey.E)
+                else if (input.Key == ConsoleKey.Escape)
                 {
                     IsRunning = false;
                     Hero.HasExitedGame = true;
                 }
                 else if (input.Key == ConsoleKey.L)
                 {
+                    Console.Clear();
+
                     while (input.Key != ConsoleKey.Backspace)
                     {
-                        Console.Clear();
                         Console.SetCursorPosition(0, 0);
                         ConsoleWriter.WriteMaximumTenInMenuLogMessages(GameLog.LogMessages, currentLogIndex);
-
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine("Press \"UP/DOWN\" to navigate log.");
-                        Console.WriteLine("Press \"Backspace\" to go back.");
 
                         input = Console.ReadKey(true);
 
