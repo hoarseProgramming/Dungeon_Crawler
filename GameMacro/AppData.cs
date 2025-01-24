@@ -1,5 +1,5 @@
-﻿using Dungeon_Crawler;
-using Dungeon_Crawler.GameMacro;
+﻿using Dungeon_Crawler.GameMacro;
+using Dungeon_Crawler.Services;
 
 internal class AppData
 {
@@ -30,8 +30,8 @@ internal class AppData
                 {
                     if (settings.ShouldAnimateDiceThrows)
                     {
-                        Console.WriteLine("You have choosen to animate dice throws.");
-                        Console.WriteLine("Please maximise your console window now. Press any key when ready.");
+                        ConsoleWriter.PrintFullscreenPrompt();
+
                         Console.ReadKey();
                         Console.Clear();
                     }
@@ -56,7 +56,7 @@ internal class AppData
                 settings = new Settings();
             }
 
-            ConsoleWriter.WriteMainMenu(HasEstablishedConnectionToDatabase);
+            ConsoleWriter.PrintMainMenu(HasEstablishedConnectionToDatabase);
 
             input = Console.ReadKey(true);
         }
@@ -69,7 +69,7 @@ internal class AppData
     }
     public async Task SelectSaveFileForLoading()
     {
-        ConsoleWriter.WriteSaveFiles(SavedGames);
+        ConsoleWriter.PrintSaveFiles(SavedGames);
 
         ConsoleKeyInfo input = new();
 
@@ -102,11 +102,9 @@ internal class AppData
             {
                 if (SelectedGame.Settings.ShouldAnimateDiceThrows)
                 {
-                    Console.Clear();
-                    Console.WriteLine("You have chosen to animate dice throws.");
-                    Console.WriteLine("Please maximise your console window now. Press any key when ready.");
+                    ConsoleWriter.PrintFullscreenPrompt();
+
                     Console.ReadKey();
-                    Console.Clear();
                 }
 
                 Console.Clear();
@@ -121,7 +119,7 @@ internal class AppData
     {
         Console.Clear();
 
-        ConsoleWriter.WriteSaveFiles(SavedGames);
+        ConsoleWriter.PrintSaveFiles(SavedGames);
 
         ConsoleKeyInfo input = new();
 
@@ -153,7 +151,7 @@ internal class AppData
 
                 if (SavedGames[selectedSaveFile - 1] is not null)
                 {
-                    ConsoleWriter.WriteOverwriteQuery();
+                    ConsoleWriter.PrintOverwriteQuery();
 
                     Console.SetCursorPosition(18, 9);
                     string choice = Console.ReadLine();
@@ -177,10 +175,10 @@ internal class AppData
     }
     public static Settings GetSettings()
     {
-        Console.Clear();
         Settings settings = new(isDefaultSettings: false);
 
-        Console.WriteLine("Enter hero name. Press \"ENTER\" for default name.");
+        ConsoleWriter.PrintSettings(1);
+
         string heroName = Console.ReadLine();
 
         if (heroName != "")
@@ -188,11 +186,12 @@ internal class AppData
             settings.ChosenHeroName = heroName;
         }
 
-        Console.WriteLine("Do you want to animate dice throws! YES/NO");
+        ConsoleWriter.PrintSettings(2);
+
         string input = String.Empty;
         while (input.ToLower() != "yes" && input.ToLower() != "no")
         {
-            Console.SetCursorPosition(0, 3);
+            Console.SetCursorPosition(18, 10);
             input = Console.ReadLine();
         }
 
@@ -241,33 +240,22 @@ internal class AppData
     }
     public async Task LoadSavedGames()
     {
-        ConsoleWriter.WriteLoadingStatus();
+        ConsoleWriter.PrintLoadingStatus();
         Console.CursorVisible = true;
 
         SavedGames = await DataBaseHandler.LoadGamesFromDataBase();
 
         if (SavedGames[0]?.Id == 4)
         {
-            ConsoleWriter.WriteLoadFailMessage();
+            ConsoleWriter.PrintLoadFailedMessage(1);
 
 
             Console.ReadKey(true);
         }
         else if (!SavedGames.Any(g => g?.Id == 1))
         {
-            Console.SetCursorPosition(3, 6);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("Connected to database!".PadRight(27));
+            ConsoleWriter.PrintLoadFailedMessage(2);
 
-            Console.SetCursorPosition(3, 7);
-            Console.Write("Couldn't find any saved games.");
-
-            Console.SetCursorPosition(3, 9);
-            Console.Write("Good luck!");
-
-            Console.CursorVisible = false;
-            Console.SetCursorPosition(3, 11);
-            Console.Write("Press any key to continue");
             HasEstablishedConnectionToDatabase = true;
 
             Console.ReadKey(true);
@@ -288,6 +276,7 @@ internal class AppData
 
             HasEstablishedConnectionToDatabase = true;
         }
+        Console.CursorVisible = false;
 
     }
 }

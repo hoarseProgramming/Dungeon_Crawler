@@ -1,13 +1,11 @@
-﻿
-using System.Diagnostics;
-
+﻿using System.Diagnostics;
 enum Direction { UP, DOWN, LEFT, RIGHT }
+
 [DebuggerDisplay("x = {X,nq}, Y = {Y,nq}")]
 struct Position
 {
     public int X { get; set; }
     public int Y { get; set; }
-
     public Position(int x, int y)
     {
         X = x;
@@ -39,5 +37,4 @@ struct Position
         }
         return this;
     }
-
 }

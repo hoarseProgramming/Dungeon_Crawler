@@ -61,8 +61,6 @@ class Hero : Character
     }
     public Position GetPotentialPosition(ConsoleKey input)
     {
-        //ConsoleKeyInfo input = Console.ReadKey(true);
-
         return input switch
         {
             ConsoleKey.UpArrow => Position.GetPositionOneStepIn(Direction.UP),
@@ -80,7 +78,7 @@ class Hero : Character
         Position = position;
         IsAlive = true;
         Name = name;
-        HP = 100;
+        HP = 10;
         AttackDice = new Dice(2, 6, 2);
         DefenceDice = new Dice(2, 6, 0);
         WasAttackedThisTurn = false;

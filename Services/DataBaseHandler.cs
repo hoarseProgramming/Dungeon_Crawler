@@ -1,15 +1,14 @@
 ﻿using Dungeon_Crawler.GameMacro;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
-namespace Dungeon_Crawler;
+namespace Dungeon_Crawler.Services;
 
 internal static class DataBaseHandler
 {
     public static async Task<bool> SaveGameToDataBase(Game game)
     {
-        var connectionString = "mongodb://localhost:27017/";
-
-        using var client = new MongoClient(connectionString);
+        using var client = GetClient();
 
         var savedGamesCollection = client.GetDatabase("HampusEiderströmSwahn").GetCollection<Game>("SavedGames");
 
@@ -17,7 +16,6 @@ internal static class DataBaseHandler
 
         try
         {
-
             using (var timeoutCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
             {
                 if (await savedGamesCollection.Find(filter).FirstOrDefaultAsync(timeoutCancellationTokenSource.Token) is not null)
@@ -43,14 +41,10 @@ internal static class DataBaseHandler
         {
             return false;
         }
-
-
     }
     public static async Task<Game[]> LoadGamesFromDataBase()
     {
-        var connectionString = "mongodb://localhost:27017/?connectTimeoutMS=5000";
-
-        using var client = new MongoClient(connectionString);
+        using var client = GetClient();
 
         var savedGamesCollection = client.GetDatabase("HampusEiderströmSwahn").GetCollection<Game>("SavedGames");
 
@@ -88,16 +82,38 @@ internal static class DataBaseHandler
         }
     }
 
-    internal static void DeleteGameFromDatabase(Game game)
+    private static MongoClient GetClient()
     {
-        var connectionString = "mongodb://localhost:27017/";
+        var config = new ConfigurationBuilder().AddUserSecrets<LevelData>().Build();
 
-        var client = new MongoClient(connectionString);
+        var connectionString = config["ConnectionString"];
+
+        return new MongoClient(connectionString);
+    }
+
+    internal static async Task<bool> DeleteGameFromDatabase(Game game)
+    {
+        bool hasDeletedSuccessfully = false;
+
+        using var client = GetClient();
 
         var savedGamesCollection = client.GetDatabase("HampusEiderströmSwahn").GetCollection<Game>("SavedGames");
 
         var filter = Builders<Game>.Filter.Eq("_id", game.Id);
 
-        savedGamesCollection.DeleteOne(filter);
+        try
+        {
+            using (var timeoutCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+            {
+                await savedGamesCollection.DeleteOneAsync(filter, timeoutCancellationTokenSource.Token);
+                hasDeletedSuccessfully = true;
+            }
+        }
+        catch (Exception)
+        {
+            hasDeletedSuccessfully = false;
+        }
+
+        return hasDeletedSuccessfully;
     }
 }

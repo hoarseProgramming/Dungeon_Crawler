@@ -1,11 +1,8 @@
-﻿
-
-
-namespace Dungeon_Crawler.GameMacro;
+﻿namespace Dungeon_Crawler.GameMacro;
 
 internal static class ConsoleWriter
 {
-    public static void WriteInGameLogMessages(LogMessage mostRecentLogMessage, LogMessage? lastLogMessage)
+    public static void PrintInGameLogMessages(LogMessage mostRecentLogMessage, LogMessage? lastLogMessage)
     {
         var messageType = mostRecentLogMessage.MessageType;
 
@@ -36,7 +33,7 @@ internal static class ConsoleWriter
             Console.Write(mostRecentLogMessage.Message.PadRight(Console.BufferWidth));
         }
     }
-    private static void WriteMenuLine()
+    private static void PrintMenuLine()
     {
         for (int i = 0; i < 41; i++)
         {
@@ -44,17 +41,17 @@ internal static class ConsoleWriter
         }
         Console.WriteLine();
     }
-    public static void WriteMaximumTenInMenuLogMessages(List<LogMessage> logMessages, int currentLogIndex)
+    public static void PrintMaximumTenInMenuLogMessages(List<LogMessage> logMessages, int currentLogIndex)
     {
         var logMessagesToPrint = logMessages.Where(l => l.LogNumber > currentLogIndex - 10 && l.LogNumber <= currentLogIndex).ToList();
 
         if (logMessagesToPrint.Count > 0)
         {
-            WriteMenuLine();
+            PrintMenuLine();
 
             Console.WriteLine("#".PadRight(20) + "Log".PadRight(20) + "#");
 
-            WriteMenuLine();
+            PrintMenuLine();
 
             foreach (var logMessage in logMessagesToPrint)
             {
@@ -89,7 +86,7 @@ internal static class ConsoleWriter
             }
 
             Console.ForegroundColor = ConsoleColor.White;
-            WriteMenuLine();
+            PrintMenuLine();
             Console.WriteLine("# Press \"UP/DOWN\" to navigate log.".PadRight(40) + "#");
             Console.WriteLine("# Press \"Backspace\" to go back.".PadRight(40) + "#");
 
@@ -140,8 +137,10 @@ internal static class ConsoleWriter
             _ => ConsoleColor.DarkMagenta
         };
 
-    private static void WriteMenuBorders()
+    private static void PrintMenuBorders()
     {
+        Console.ForegroundColor = ConsoleColor.White;
+
         int cursorX = 0;
         int cursorY = 0;
         for (int y = 0; y < 16; y++)
@@ -181,9 +180,9 @@ internal static class ConsoleWriter
         Console.WriteLine(" ".PadLeft(Console.BufferWidth));
     }
 
-    internal static void WriteMainMenu(bool hasConnection)
+    internal static void PrintMainMenu(bool hasConnection)
     {
-        WriteMenuBorders();
+        PrintMenuBorders();
 
         Console.SetCursorPosition(13, 2);
         Console.ForegroundColor = ConsoleColor.Red;
@@ -223,31 +222,31 @@ internal static class ConsoleWriter
         Console.Write("|".PadRight(7) + "\"ESC\"");
 
         Console.SetCursorPosition(0, 12);
-        WriteMenuLine();
+        PrintMenuLine();
 
-        Console.SetCursorPosition(2, 13);
+        Console.SetCursorPosition(7, 13);
 
         if (hasConnection)
         {
-            Console.Write("Connected to database: ");
+            Console.Write("Connected to the void: ");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("Yes");
             Console.ForegroundColor = ConsoleColor.White;
         }
         else
         {
-            Console.Write("Connected to database: ");
+            Console.Write("Connected to the void: ");
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("No");
             Console.ForegroundColor = ConsoleColor.White;
         }
     }
 
-    internal static void WriteSaveFiles(Game[] savedGames)
+    internal static void PrintSaveFiles(Game[] savedGames)
     {
         Console.Clear();
 
-        WriteMenuBorders();
+        PrintMenuBorders();
 
         Console.SetCursorPosition(6, 1);
         Console.ForegroundColor = ConsoleColor.Red;
@@ -264,16 +263,16 @@ internal static class ConsoleWriter
             Console.Write("1:".PadRight(5) + $"Name: {savedGames[0].Hero.Name}");
             Console.SetCursorPosition(8, 6);
             Console.WriteLine($"Turn: {savedGames[0].Hero.Turn}".PadRight(10) + "|".PadRight(3) + $"HP: {savedGames[0].Hero.HP}");
-            WriteMenuLine();
-            WriteMenuLine();
+            PrintMenuLine();
+            PrintMenuLine();
         }
         else
         {
             Console.SetCursorPosition(8, 5);
-            Console.Write("1:".PadRight(5) + "Empty");
+            Console.WriteLine("1:".PadRight(5) + "Empty");
             Console.WriteLine();
-            WriteMenuLine();
-            WriteMenuLine();
+            PrintMenuLine();
+            PrintMenuLine();
         }
 
         if (savedGames[1] is not null)
@@ -282,16 +281,16 @@ internal static class ConsoleWriter
             Console.Write("2:".PadRight(5) + $"Name: {savedGames[1].Hero.Name}");
             Console.SetCursorPosition(8, 10);
             Console.WriteLine($"Turn: {savedGames[1].Hero.Turn}".PadRight(10) + "|".PadRight(3) + $"HP: {savedGames[1].Hero.HP}");
-            WriteMenuLine();
-            WriteMenuLine();
+            PrintMenuLine();
+            PrintMenuLine();
         }
         else
         {
             Console.SetCursorPosition(8, 9);
             Console.WriteLine("2:".PadRight(5) + "Empty");
             Console.WriteLine();
-            WriteMenuLine();
-            WriteMenuLine();
+            PrintMenuLine();
+            PrintMenuLine();
         }
 
         if (savedGames[2] is not null)
@@ -308,44 +307,257 @@ internal static class ConsoleWriter
         }
     }
 
-    internal static void WriteOverwriteQuery()
+    internal static void PrintOverwriteQuery()
     {
         Console.Clear();
 
-        WriteMenuBorders();
+        PrintMenuBorders();
 
         Console.SetCursorPosition(4, 2);
         Console.ForegroundColor = ConsoleColor.Red;
         Console.Write("Overwrite save? YES/NO");
     }
 
-    internal static void WriteLoadingStatus()
+    internal static void PrintLoadingStatus()
     {
-        WriteMenuBorders();
+        PrintMenuBorders();
 
-        Console.SetCursorPosition(11, 2);
+        Console.SetCursorPosition(4, 2);
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.Write("Loading saved games");
+        Console.Write("Searching the void for progress");
 
         Console.SetCursorPosition(8, 6);
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write("Establishing connection..");
     }
 
-    internal static void WriteLoadFailMessage()
+    internal static void PrintLoadFailedMessage(int choice)
     {
-        Console.SetCursorPosition(6, 6);
+        if (choice == 1)
+        {
+            Console.SetCursorPosition(6, 6);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Couldn't connect to the void!");
+
+            Console.SetCursorPosition(6, 7);
+            Console.Write("(Loading/saving disabled)");
+
+            Console.SetCursorPosition(6, 9);
+            Console.Write("Try reconnecting in menu.");
+
+            Console.CursorVisible = false;
+            Console.SetCursorPosition(6, 11);
+            Console.Write("Press any key to continue");
+        }
+        else if (choice == 2)
+        {
+            Console.SetCursorPosition(3, 6);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Connected to the void!".PadRight(35));
+
+            Console.SetCursorPosition(3, 7);
+            Console.Write("Couldn't find any progress.");
+
+            Console.SetCursorPosition(3, 9);
+            Console.Write("Good luck!");
+
+            Console.CursorVisible = false;
+            Console.SetCursorPosition(3, 11);
+            Console.Write("Press any key to continue");
+        }
+
+    }
+
+    internal static void PrintDeleteOutcome(bool hasDeletedSuccessfully)
+    {
+        Console.SetCursorPosition(17, 2);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("Death");
+
+        if (hasDeletedSuccessfully)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.SetCursorPosition(2, 6);
+            Console.Write("    Your progress is forever lost.");
+
+            Console.SetCursorPosition(6, 12);
+            Console.Write("Press any key to continue.");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.SetCursorPosition(6, 2);
+            Console.Write("    No connection to the void.".PadRight(30));
+
+            Console.SetCursorPosition(7, 8);
+            Console.Write("Some progress lives on.");
+
+            Console.SetCursorPosition(2, 10);
+            Console.Write("Reloading from the void is cheating.");
+
+            Console.SetCursorPosition(6, 12);
+            Console.Write("Press any key to continue.");
+        }
+
+    }
+
+    internal static void PrintDeleting()
+    {
+        Console.Clear();
+
+        PrintMenuBorders();
+
+        Console.SetCursorPosition(17, 2);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("Death");
+
         Console.ForegroundColor = ConsoleColor.White;
-        Console.Write("Couldn't connect to database!");
+        Console.SetCursorPosition(2, 6);
+        Console.Write("Deleting progress from the void...");
+    }
 
-        Console.SetCursorPosition(6, 7);
-        Console.Write("(Loading/saving disabled)");
+    internal static void PrintGameOverMessage()
+    {
+        ClearInGameLogMessages();
 
-        Console.SetCursorPosition(6, 9);
-        Console.Write("Try reconnecting in menu.");
+        Console.ForegroundColor = ConsoleColor.Red;
 
-        Console.CursorVisible = false;
-        Console.SetCursorPosition(6, 11);
-        Console.Write("Press any key to continue");
+        Console.SetCursorPosition(0, 1);
+
+        Console.Write("You are dead. Fool.");
+
+        Console.SetCursorPosition(0, 2);
+
+        Console.Write("Press any key to continue. Fool.");
+    }
+
+    internal static void PrintSaving()
+    {
+        Console.CursorVisible = true;
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.SetCursorPosition(0, 0);
+        Console.Clear();
+        Console.WriteLine("########## Menu ##########");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("##########################");
+
+        Console.SetCursorPosition(6, 3);
+
+        Console.Write("Saving...");
+    }
+
+    internal static void PrintSaveOutcome(bool saveIsSuccessful)
+    {
+        if (saveIsSuccessful)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.SetCursorPosition(0, 0);
+            Console.Clear();
+            Console.WriteLine("########## Menu ##########");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#       Game saved!      #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#      Press any key     #");
+            Console.WriteLine("#       to continue.     #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("##########################");
+            Console.WriteLine();
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.SetCursorPosition(0, 0);
+            Console.Clear();
+            Console.WriteLine("########## Menu ##########");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("# Not connected to void  #");
+            Console.WriteLine("#      Can't save.       #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#      Press any key     #");
+            Console.WriteLine("#       to continue.     #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("#                        #");
+            Console.WriteLine("##########################");
+            Console.WriteLine();
+        }
+    }
+
+    internal static void PrintFullscreenPrompt()
+    {
+        Console.Clear();
+
+        PrintMenuBorders();
+
+        Console.SetCursorPosition(12, 2);
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("Animating dice");
+
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.SetCursorPosition(2, 6);
+        Console.Write("Animate mode: On.");
+
+        Console.SetCursorPosition(2, 8);
+        Console.WriteLine("Please maximise window now.");
+
+        Console.SetCursorPosition(2, 10);
+        Console.WriteLine("Press any key when ready.");
+    }
+
+    internal static void PrintSettings(int step)
+    {
+        Console.Clear();
+
+        PrintMenuBorders();
+
+        if (step == 1)
+        {
+            Console.SetCursorPosition(15, 2);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("Enter name:");
+
+            Console.SetCursorPosition(7, 6);
+            Console.Write("(Press \"Enter\" for default)");
+
+            Console.SetCursorPosition(12, 10);
+        }
+        else
+        {
+            Console.SetCursorPosition(12, 2);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("Animate dice?");
+
+            Console.SetCursorPosition(15, 6);
+            Console.Write("YES/NO");
+        }
+
+    }
+
+    internal static void PrintInGameMenu()
+    {
+        Console.SetCursorPosition(0, 0);
+        Console.Clear();
+        Console.WriteLine("########## Menu ##########");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("# \"L\": Show Log          #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("# \"S\": Save Game         #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("# \"B\": Back to Game      #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("# \"Escape\": Main menu    #");
+        Console.WriteLine("#                        #");
+        Console.WriteLine("##########################");
     }
 }

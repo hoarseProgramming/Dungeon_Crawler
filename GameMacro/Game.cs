@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using Dungeon_Crawler.Services;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Dungeon_Crawler.GameMacro
 {
@@ -51,12 +52,32 @@ namespace Dungeon_Crawler.GameMacro
                 CurrentLevel.DrawLevel();
                 if (!Hero.IsAlive)
                 {
+                    ConsoleWriter.PrintGameOverMessage();
+                    Console.ReadKey(true);
+
                     IsRunning = false;
+                    Console.Clear();
 
                     if (Id != 0)
                     {
+                        Console.CursorVisible = true;
+                        ConsoleWriter.PrintDeleting();
+
                         AppData.SavedGames[Id - 1] = null;
-                        DataBaseHandler.DeleteGameFromDatabase(this);
+                        bool hasDeletedSuccessfully = await DataBaseHandler.DeleteGameFromDatabase(this);
+
+                        if (hasDeletedSuccessfully)
+                        {
+                            ConsoleWriter.PrintDeleteOutcome(hasDeletedSuccessfully);
+                        }
+                        else
+                        {
+                            ConsoleWriter.PrintDeleteOutcome(hasDeletedSuccessfully);
+                            AppData.HasEstablishedConnectionToDatabase = false;
+                        }
+
+                        Console.CursorVisible = false;
+                        Console.ReadKey();
                     }
                 }
             }
@@ -86,13 +107,13 @@ namespace Dungeon_Crawler.GameMacro
 
             if (GameLog.LogMessages.Count <= 1)
             {
-                ConsoleWriter.WriteInGameLogMessages(e.LogMessage, null);
+                ConsoleWriter.PrintInGameLogMessages(e.LogMessage, null);
             }
             else
             {
                 var mostRecentLogMessage = GameLog.LogMessages[GameLog.LogMessages.Count - 2];
 
-                ConsoleWriter.WriteInGameLogMessages(e.LogMessage, mostRecentLogMessage);
+                ConsoleWriter.PrintInGameLogMessages(e.LogMessage, mostRecentLogMessage);
             }
 
 
@@ -109,25 +130,9 @@ namespace Dungeon_Crawler.GameMacro
 
             if (AppData.SavedGames.Any(g => g?.Id == Id))
             {
-                Console.CursorVisible = true;
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.SetCursorPosition(0, 0);
-                Console.Clear();
-                Console.WriteLine("########## Menu ##########");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("##########################");
+                ConsoleWriter.PrintSaving();
 
-                Console.SetCursorPosition(6, 3);
 
-                Console.Write("Saving...");
 
 
                 saveIsSuccesful = await DataBaseHandler.SaveGameToDataBase(this);
@@ -136,25 +141,7 @@ namespace Dungeon_Crawler.GameMacro
             {
                 Id = AppData.SelectSaveFileForSaving();
 
-                Console.CursorVisible = true;
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.SetCursorPosition(0, 0);
-                Console.Clear();
-                Console.WriteLine("########## Menu ##########");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("##########################");
-
-                Console.SetCursorPosition(6, 3);
-
-                Console.Write("Saving...");
+                ConsoleWriter.PrintSaving();
 
                 if (Id != 0)
                 {
@@ -185,20 +172,7 @@ namespace Dungeon_Crawler.GameMacro
 
             while (input.Key != ConsoleKey.Escape && input.Key != ConsoleKey.B)
             {
-                Console.SetCursorPosition(0, 0);
-                Console.Clear();
-                Console.WriteLine("########## Menu ##########");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("# \"L\": Show Log          #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("# \"S\": Save Game         #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("# \"B\": Back to Game      #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("# \"Escape\": Main menu    #");
-                Console.WriteLine("#                        #");
-                Console.WriteLine("##########################");
-
+                ConsoleWriter.PrintInGameMenu();
 
                 input = Console.ReadKey(true);
 
@@ -212,21 +186,7 @@ namespace Dungeon_Crawler.GameMacro
 
                         if (outcome.SaveIsSuccessful)
                         {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.SetCursorPosition(0, 0);
-                            Console.Clear();
-                            Console.WriteLine("########## Menu ##########");
-                            Console.WriteLine("#                        #");
-                            Console.WriteLine("#                        #");
-                            Console.WriteLine("#       Game saved!      #");
-                            Console.WriteLine("#                        #");
-                            Console.WriteLine("#      Press any key     #");
-                            Console.WriteLine("#       to continue.     #");
-                            Console.WriteLine("#                        #");
-                            Console.WriteLine("#                        #");
-                            Console.WriteLine("#                        #");
-                            Console.WriteLine("##########################");
-                            Console.WriteLine();
+                            ConsoleWriter.PrintSaveOutcome(outcome.SaveIsSuccessful);
 
                             Console.ReadKey();
 
@@ -236,23 +196,9 @@ namespace Dungeon_Crawler.GameMacro
                         {
                             if (!outcome.DidNotChooseSaveFile)
                             {
-                                AppData.HasEstablishedConnectionToDatabase = false;
+                                ConsoleWriter.PrintSaveOutcome(outcome.SaveIsSuccessful);
 
-                                Console.ForegroundColor = ConsoleColor.White;
-                                Console.SetCursorPosition(0, 0);
-                                Console.Clear();
-                                Console.WriteLine("########## Menu ##########");
-                                Console.WriteLine("#                        #");
-                                Console.WriteLine("#                        #");
-                                Console.WriteLine("#      No connection.    #");
-                                Console.WriteLine("#       Can't save!      #");
-                                Console.WriteLine("#                        #");
-                                Console.WriteLine("#      Press any key     #");
-                                Console.WriteLine("#       to continue.     #");
-                                Console.WriteLine("#                        #");
-                                Console.WriteLine("#                        #");
-                                Console.WriteLine("##########################");
-                                Console.WriteLine();
+                                AppData.HasEstablishedConnectionToDatabase = false;
 
                                 Console.ReadKey();
                             }
@@ -260,21 +206,7 @@ namespace Dungeon_Crawler.GameMacro
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.SetCursorPosition(0, 0);
-                        Console.Clear();
-                        Console.WriteLine("########## Menu ##########");
-                        Console.WriteLine("#                        #");
-                        Console.WriteLine("#                        #");
-                        Console.WriteLine("#      No connection.    #");
-                        Console.WriteLine("#       Can't save!      #");
-                        Console.WriteLine("#                        #");
-                        Console.WriteLine("#      Press any key     #");
-                        Console.WriteLine("#       to continue.     #");
-                        Console.WriteLine("#                        #");
-                        Console.WriteLine("#                        #");
-                        Console.WriteLine("##########################");
-                        Console.WriteLine();
+                        ConsoleWriter.PrintSaveOutcome(false);
 
                         Console.ReadKey();
                     }
@@ -291,7 +223,7 @@ namespace Dungeon_Crawler.GameMacro
                     while (input.Key != ConsoleKey.Backspace)
                     {
                         Console.SetCursorPosition(0, 0);
-                        ConsoleWriter.WriteMaximumTenInMenuLogMessages(GameLog.LogMessages, currentLogIndex);
+                        ConsoleWriter.PrintMaximumTenInMenuLogMessages(GameLog.LogMessages, currentLogIndex);
 
                         input = Console.ReadKey(true);
 

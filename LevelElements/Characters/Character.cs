@@ -48,9 +48,7 @@ abstract class Character : LevelElement
         {
             opponent.IsAlive = false;
         }
-
         GenerateVoiceLine(this, opponent, attack, defence, damage);
-
     }
     public int CalculateDamage(int attack, int defence)
     {

@@ -13,7 +13,6 @@ class LevelData
     public Game Game { get; set; }
     public int levelNumber { get; set; }
     private List<LevelElement> _elements = new List<LevelElement>();
-
     public List<LevelElement> Elements
     {
         get => _elements;
@@ -110,18 +109,6 @@ class LevelData
         {
             element.Draw();
         }
-        if (!Hero.IsAlive)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            if (Hero.ShouldAnimateDiceThrows)
-            {
-                Hero.AttackDice.ClearDiceText();
-            }
-            Console.SetCursorPosition(0, 21);
-            Console.WriteLine("Game Over! Press any key to enter main menu");
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.ReadKey(true);
-        }
     }
     public void UpdateVision()
     {
@@ -176,7 +163,6 @@ class LevelData
             }
         }
     }
-
     internal void DeMongoLevel(Game game)
     {
         Game = game;
