@@ -14,7 +14,7 @@ These are the main features of the game:
 
 Discover the dungeon - one step at a time.
 
-![Playing the game](README_Pictures/PlayingBoard.png)
+![Playing the game](README_Pictures/Playingboard.png)
 
 Fight two different kinds of monsters. Animate your dice throws.
 
