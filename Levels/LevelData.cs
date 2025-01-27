@@ -39,9 +39,7 @@ class LevelData
     {
         LoadAllLevelElements(settings, hero);
         LoadCharacters();
-        UpdateVision();
-        PrintStatusBar();
-        DrawLevel();
+        //UpdateVision();
     }
     public void LoadAllLevelElements(Settings settings, Hero hero)
     {
@@ -115,7 +113,7 @@ class LevelData
         foreach (var element in Elements)
         {
             element.UpdateIsInsideVisionRange(Hero);
-            element.Draw();
+            //element.Draw();
         }
     }
     public async Task NewTurn()
@@ -126,6 +124,7 @@ class LevelData
             return;
         }
         UpdateVision();
+        DrawLevel();
 
         foreach (var element in Elements)
         {
