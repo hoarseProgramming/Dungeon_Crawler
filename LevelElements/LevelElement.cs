@@ -1,7 +1,8 @@
 ﻿using Dungeon_Crawler.GameMacro;
+using Dungeon_Crawler.LevelElements.Structures;
 using MongoDB.Bson.Serialization.Attributes;
 
-[BsonKnownTypes(typeof(Wall), typeof(Character))]
+[BsonKnownTypes(typeof(Structure), typeof(Character))]
 abstract class LevelElement
 {
     [BsonIgnore]
@@ -23,7 +24,7 @@ abstract class LevelElement
 
         if (IsInsideVisionRange)
         {
-            if (this is Wall)
+            if (this is Structure)
             {
                 Console.BackgroundColor = ConsoleColor.DarkGray;
                 Console.ForegroundColor = SpriteColor;
