@@ -22,8 +22,9 @@ namespace Dungeon_Crawler.GameMacro
 
         public void CreateNewGame(Settings settings, AppData appData)
         {
-            Levels.Clear();
             //TODO: Load all levels ;-)
+            Levels.Clear();
+
             Settings = settings;
 
             LevelData levelOne = new LevelData(1, this);
