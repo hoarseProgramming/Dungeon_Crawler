@@ -22,21 +22,30 @@ namespace Dungeon_Crawler.GameMacro
 
         public void CreateNewGame(Settings settings, AppData appData)
         {
-            //TODO: Load all levels ;-)
             Levels.Clear();
-
             Settings = settings;
-
-            LevelData levelOne = new LevelData(1, this);
-
-            Hero = new Hero(new Position(), false, "", this);
-
-            levelOne.Load(settings, Hero);
-
-            Levels.Add(levelOne);
-            CurrentLevel = levelOne;
-
             AppData = appData;
+            Hero = new Hero(new Position(), false, "", this);
+            Position startingPosition = new Position(0, 0);
+
+            for (int i = 1; i < 3; i++)
+            {
+                var level = new LevelData(i, this);
+
+                level.Load(settings, Hero);
+
+                if (i == 1)
+                {
+                    CurrentLevel = level;
+                    startingPosition = CurrentLevel.Hero.Position;
+                }
+
+                Levels.Add(level);
+            }
+
+            CurrentLevel.Hero.Position = startingPosition;
+            CurrentLevel.PrintStatusBar();
+            CurrentLevel.DrawLevel();
         }
         public async Task RunGameLoop()
         {
@@ -45,6 +54,8 @@ namespace Dungeon_Crawler.GameMacro
             IsRunning = true;
             while (IsRunning)
             {
+                CurrentLevel.UpdateVision();
+                CurrentLevel.DrawLevel();
                 await CurrentLevel.NewTurn();
                 if (Hero.HasExitedGame)
                 {
