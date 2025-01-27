@@ -2,7 +2,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 
 [BsonKnownTypes(typeof(Hero), typeof(Enemy))]
-
 abstract class Character : LevelElement
 {
     public bool IsAlive { get; set; }
