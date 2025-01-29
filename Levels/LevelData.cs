@@ -129,6 +129,8 @@ class LevelData
     }
     public async Task NewTurn()
     {
+        ClearKeyInputBuffer();
+        
         await Hero.MakeTurn(this);
         if (Hero.HasExitedGame)
         {
@@ -154,6 +156,15 @@ class LevelData
         UpdateVision();
         RemoveDeadCharacters();
     }
+
+    private void ClearKeyInputBuffer()
+    {
+        while (Console.KeyAvailable)
+        {
+            Console.ReadKey(false);
+        }
+    }
+
     public void RemoveDeadCharacters()
     {
         foreach (Character character in Characters)
