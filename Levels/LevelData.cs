@@ -173,10 +173,10 @@ class LevelData
             }
         }
     }
-    internal void DeMongoLevel(Game game)
+    internal void DeMongoLevel(Game game, Hero hero)
     {
         Game = game;
-
+        
         foreach (var element in Elements)
         {
             element.SetGame(Game);
@@ -188,7 +188,15 @@ class LevelData
         {
             if (character is Hero)
             {
-                Hero = character as Hero;
+                _elements.Remove(character);
+                
+                Hero = hero;
+                _elements.Add(Hero);
+
+                if (levelNumber == 1)
+                {
+                    Hero.LogEvent += Game.levelElement_LogMessageSent;
+                }
             }
         }
     }
