@@ -42,6 +42,11 @@ abstract class LevelElement
             Console.Write(' ');
         }
     }
+    public void RemoveFromPlayingField()
+    {
+        Console.SetCursorPosition(Position.X, Position.Y);
+        Console.Write(' ');
+    }
     public virtual void UpdateIsInsideVisionRange(Hero hero)
     {
         double distanceBetweenPositions = Position.CalculateDistanceBetweenPositions(hero.Position, Position);

@@ -1,4 +1,5 @@
 ﻿using Dungeon_Crawler.GameMacro;
+using Dungeon_Crawler.LevelElements.Structures;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
@@ -21,25 +22,14 @@ class LevelData
             _elements = value;
         }
     }
-    private List<Character> _characters = new List<Character>();
     [BsonIgnore]
-    public List<Character> Characters
-    {
-        get
-        {
-            return _characters;
-        }
-        set
-        {
-            _characters = value;
-        }
-    }
+    private List<Character> Characters { get; set; }
     public Hero Hero { get; set; }
+    public Position EntryPoint { get; set; }
     public void Load(Settings settings, Hero hero)
     {
         LoadAllLevelElements(settings, hero);
         LoadCharacters();
-        //UpdateVision();
     }
     public void LoadAllLevelElements(Settings settings, Hero hero)
     {
@@ -63,6 +53,14 @@ class LevelData
                     _elements.Add(hero);
                     Hero = hero;
                 }
+                else if (currentChar == '|' || currentChar == '_')
+                {
+                    _elements.Add(new Door(new Position(readerPosition.X, readerPosition.Y), Game, currentChar));
+                }
+                else if (currentChar == 'E')
+                {
+                    EntryPoint = new Position(readerPosition.X, readerPosition.Y);
+                }
                 else if (currentChar == 'r')
                 {
                     _elements.Add(new Rat(new Position(readerPosition.X, readerPosition.Y), settings.ShouldAnimateDiceThrows, Game));
@@ -79,6 +77,12 @@ class LevelData
                 }
                 readerPosition.X++;
             }
+        }
+
+        if (Hero is null)
+        {
+            Hero = hero;
+            _elements.Add(hero);
         }
     }
     public void LoadCharacters()
@@ -108,12 +112,19 @@ class LevelData
             element.Draw();
         }
     }
+
+    public void EraseLevel()
+    {
+        foreach (var element in Elements)
+        {
+            element.RemoveFromPlayingField();
+        }
+    }
     public void UpdateVision()
     {
         foreach (var element in Elements)
         {
             element.UpdateIsInsideVisionRange(Hero);
-            //element.Draw();
         }
     }
     public async Task NewTurn()

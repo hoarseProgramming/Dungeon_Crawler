@@ -1,9 +1,11 @@
 ﻿using Dungeon_Crawler.GameMacro;
+using Dungeon_Crawler.LevelElements.Structures;
 using MongoDB.Bson.Serialization.Attributes;
 
 class Hero : Character
 {
     public int Turn { get; set; }
+    public int FloorTraversingDirection { get; set; }
     [BsonIgnore]
     public bool HasExitedGame { get; set; } = false;
     public int VisionRange { get; set; }
@@ -45,11 +47,13 @@ class Hero : Character
                 EnterCombatPhaseWith(opponent);
             }
         }
+        else if (elementCollidedWith is Door door)
+        {
+            FloorTraversingDirection = door.LevelDirection;
+        }
         else if (!(elementCollidedWith is Wall))
         {
             Move(potentialPosition);
-
-            //ClearAttackText();
 
             if (ShouldAnimateDiceThrows)
             {
@@ -78,7 +82,7 @@ class Hero : Character
         Position = position;
         IsAlive = true;
         Name = name;
-        HP = 10;
+        HP = 100;
         AttackDice = new Dice(2, 6, 2);
         DefenceDice = new Dice(2, 6, 0);
         WasAttackedThisTurn = false;

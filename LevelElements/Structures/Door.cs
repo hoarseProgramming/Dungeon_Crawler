@@ -6,7 +6,8 @@ internal class Door : Structure
 {
     bool IsOpen = false;
     bool IsLocked;
-    public Door(Position position, Game game, char sprite, bool isLocked = false)
+    public int LevelDirection { get; private set; }
+    public Door(Position position, Game game, char sprite, bool isOpen = false, bool isLocked = false)
     {
         Position = position;
         Game = game;
@@ -14,7 +15,15 @@ internal class Door : Structure
         SpriteColor = ConsoleColor.White;
         IsLocked = isLocked;
 
-        if (sprite == '_') IsOpen = true;
+        if (sprite == '|')
+        {
+            LevelDirection = 1;
+        }
+        else
+        {
+            isOpen = true;
+            LevelDirection = -1;
+        }
     }
     public void OpenDoor()
     {

@@ -169,10 +169,10 @@ abstract class Character : LevelElement
             }
         }
     }
-    public void RemoveFromPlayingField()
-    {
-        Console.SetCursorPosition(Position.X, Position.Y);
-        Console.Write(' ');
-    }
+    // public void RemoveFromPlayingField()
+    // {
+    //     Console.SetCursorPosition(Position.X, Position.Y);
+    //     Console.Write(' ');
+    // }
 
 }

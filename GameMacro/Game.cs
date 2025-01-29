@@ -57,11 +57,19 @@ namespace Dungeon_Crawler.GameMacro
                 CurrentLevel.UpdateVision();
                 CurrentLevel.DrawLevel();
                 await CurrentLevel.NewTurn();
-                if (Hero.HasExitedGame)
+                
+                if (Hero.HasExitedGame) return;
+                if (Hero.FloorTraversingDirection != 0)
                 {
-                    return;
+                    CurrentLevel.EraseLevel();
+                    int currentLevelIndex = Levels.IndexOf(CurrentLevel);
+                    CurrentLevel = Levels[currentLevelIndex += Hero.FloorTraversingDirection];
+                    Hero.Position = CurrentLevel.EntryPoint;
+                    CurrentLevel.UpdateVision();
+                    Hero.FloorTraversingDirection = 0;
                 }
                 CurrentLevel.DrawLevel();
+                
                 if (!Hero.IsAlive)
                 {
                     ConsoleWriter.PrintGameOverMessage();
@@ -131,7 +139,10 @@ namespace Dungeon_Crawler.GameMacro
 
             if (!(sender is Hero && e.LogMessage.MessageType == MessageType.Movement))
             {
+#if DEBUG
+#else         
                 Thread.Sleep(400);
+#endif
             }
         }
         internal async Task<SaveGameOutcome> SaveGame()
