@@ -24,7 +24,7 @@ abstract class LevelElement
 
         if (IsInsideVisionRange)
         {
-            if (this is Structure)
+            if (this is Wall)
             {
                 Console.BackgroundColor = ConsoleColor.DarkGray;
                 Console.ForegroundColor = SpriteColor;
