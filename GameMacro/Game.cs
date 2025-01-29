@@ -105,17 +105,17 @@ namespace Dungeon_Crawler.GameMacro
 
         public void DeMongoGame(AppData appData)
         {
+            Hero.SetGame(this);
+            
             foreach (var level in Levels)
             {
-                level.DeMongoLevel(this);
+                level.DeMongoLevel(this, Hero);
             }
             var currentLevelNumber = CurrentLevel.levelNumber;
 
             CurrentLevel = Levels[currentLevelNumber - 1];
-
-            Hero = CurrentLevel.Hero;
-
-            Hero.SetGame(this);
+            
+            // Hero = CurrentLevel.Hero;
 
             AppData = appData;
 
