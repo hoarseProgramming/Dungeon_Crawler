@@ -11,6 +11,7 @@ class Hero : Character
     public int VisionRange { get; set; }
     public async Task MakeTurn(LevelData currentLevel)
     {
+        
         ConsoleKeyInfo input = new();
 
         while (
@@ -20,7 +21,6 @@ class Hero : Character
             input.Key != ConsoleKey.RightArrow
             )
         {
-
             if (input.Key == ConsoleKey.M)
             {
                 await Game.RunInGameMenu();
@@ -50,6 +50,7 @@ class Hero : Character
         else if (elementCollidedWith is Door door)
         {
             FloorTraversingDirection = door.LevelDirection;
+            door.OpenDoor();
         }
         else if (!(elementCollidedWith is Wall))
         {
